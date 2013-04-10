@@ -68,6 +68,15 @@
 		border-bottom: 1px dotted #E7E7E7;
 	}
 
+	.toggle-map {
+		background: #2284a1; color: #fff;
+		display: inline-block; width: 40px; height: 40px; padding: 11px 0 0;
+		position: absolute; right: 15px; top: 15px;
+		font-size: 23px; text-align: center;
+		z-index: 500;
+		border-radius: 100%;
+	}
+
 	@media only screen and (orientation: portrait) {
 		.map { height: 200px; }
 
@@ -92,43 +101,58 @@
 								<a href="#" class="button prefix" id="btn-search">Search</a>
 							</div>
 						</div>
-						<div class="row collapse">
-							<ul>
-								<li>541 Mona Pelkey 28760 Hadley Rd Black River, NY</li>
-								<li>1032 Jerald L Newton 10069 Keller Rd Delton, MI</li>
-								<li>541 Mona Pelkey 28760 Hadley Rd Black River, NY</li>
-								<li>1032 Jerald L Newton 10069 Keller Rd Delton, MI</li>
-								<li>541 Mona Pelkey 28760 Hadley Rd Black River, NY</li>
-								<li>1032 Jerald L Newton 10069 Keller Rd Delton, MI</li>
-							</ul>
+						<div class="row collapse relative">
+							<ul id="list">
+								<li>List Item 1</li>
+								<li>List Item 2</li>
+								<li>List Item 3</li>
+								<li>List Item 4</li>
+								<li>List Item 5</li>
+								<li>List Item 6</li>
+								<li>List Item 7</li>
+								<li>List Item 8</li>
+								<li>List Item 9</li>
+								<li>List Item 10</li>
+								<li>List Item 11</li>
+								<li>List Item 12</li>
+								<li>List Item 13</li>
+								<li>List Item 14</li>
+								<li>List Item 15</li>
+								<li>List Item 16</li>
+								<li>List Item 17</li>
+								<li>List Item 18</li>
+								<li>List Item 19</li>
+								<li>List Item 20</li>
+								<ul>
+								</div>
+							</div>
 						</div>
-					</div>
+					</form>
 				</div>
-			</form>
-		</div>
 
-		<div class="large-9 columns reset-padding">
-			<div id="map" class="map"></div>
-		</div>
+				<div class="large-9 columns reset-padding relative">
+					<i class="gen-enclosed foundicon-location toggle-map" onclick="toggleMap()"></i>
+					<div id="map" class="map"></div>
+				</div>
 
-		<div class="large-3 columns box-padding-high box-white right-panel hidden relative">
-			<i class="foundicon-remove absolute" onclick="toggleRightPanel()"></i>
+				<div class="large-3 columns box-padding-high box-white right-panel hidden relative">
+					<i class="foundicon-remove absolute" onclick="toggleRightPanel()"></i>
 
-			<img src="http://placehold.it/400x300&text=[img]" />
-			<h4>This is a content section.</h4>
-			<p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
-		</div>
-	</div>
+					<img src="http://placehold.it/400x300&text=[img]" />
+					<h4>This is a content section.</h4>
+					<p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
+				</div>
+			</div>
 
-	<script src="js/vendor/jquery.js"></script>
-	<script>
+			<script src="js/vendor/jquery.js"></script>
+			<script src="js/foundation.min.js"></script>
+
+			<script>
 		// set map height
 		if(window.orientation === undefined){
 			document.getElementById("row-full").style.height = window.innerHeight + "px";
-			document.getElementById("map").style.height = window.innerHeight + "px";
-		} else {
-			document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
 		}
+		document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
 
 		// create a map in the "map" div, set the view to a given place and zoom
 		var map = L.map('map').setView([51.505, -0.09], 13);
@@ -147,43 +171,19 @@
 		function toggleRightPanel(){
 			$(".right-panel").toggleClass("hidden");
 		}
+
+		function toggleMap(){
+			var left = $(".left-column");
+			left.toggle();
+
+			if (left.is(":visible")){
+				document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
+			} else {
+				document.getElementById("map").style.height = window.innerHeight + "px";
+			}
+			console.log("resize map here..");
+		}
 		</script>
-
-		<script src="js/foundation.min.js"></script>
-  <!--
-  
-  <script src="js/foundation/foundation.js"></script>
-  
-  <script src="js/foundation/foundation.alerts.js"></script>
-  
-  <script src="js/foundation/foundation.clearing.js"></script>
-  
-  <script src="js/foundation/foundation.cookie.js"></script>
-  
-  <script src="js/foundation/foundation.dropdown.js"></script>
-  
-  <script src="js/foundation/foundation.forms.js"></script>
-  
-  <script src="js/foundation/foundation.joyride.js"></script>
-  
-  <script src="js/foundation/foundation.magellan.js"></script>
-  
-  <script src="js/foundation/foundation.orbit.js"></script>
-  
-  <script src="js/foundation/foundation.placeholder.js"></script>
-  
-  <script src="js/foundation/foundation.reveal.js"></script>
-  
-  <script src="js/foundation/foundation.section.js"></script>
-  
-  <script src="js/foundation/foundation.tooltips.js"></script>
-  
-  <script src="js/foundation/foundation.topbar.js"></script>
-  
--->
-
-<script>
-$(document).foundation();
-</script>
-</body>
-</html>
+		<script>$(document).foundation();</script>
+	</body>
+	</html>
