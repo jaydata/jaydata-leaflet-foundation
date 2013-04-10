@@ -1,15 +1,12 @@
-$(function(){
-	var mapHtml 	= document.getElementById("map"),
-	 	rowHtml 	= document.getElementById("row-full");
+document.body.style.width = window.innerWidth + "px";
 
-	// set map height
-	if (L.Browser.mobile) {
-		mapHtml.style.height = (window.innerHeight - 250) + "px";
-	} else {
-		mapHtml.style.height = window.innerHeight + "px";
-		rowHtml.style.height = window.innerHeight + "px";
-	}
-});
+// set map height
+if (L.Browser.mobile) {
+	document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
+} else {
+	document.getElementById("row-full").style.height = window.innerHeight + "px";
+}
+document.getElementById("map").style.height = window.innerHeight + "px";
 
 function toggleRightPanel() {
 	$(".right-panel").toggleClass("hidden");
@@ -17,9 +14,9 @@ function toggleRightPanel() {
 
 function toggleMap() {
 	var left = $(".left-column");
-	left.toggleClass('open');
+	left.toggleClass("open");
 
-	if (left.is(":visible")) {
+	if (left.hasClass("open")) {
 		document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
 	} else {
 		document.getElementById("map").style.height = window.innerHeight + "px";
