@@ -14,7 +14,7 @@
 	<!-- LEAFLET -->
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css" />
 	<script src="http://cdn.leafletjs.com/leaflet-0.5/leaflet.js"></script>
-
+    <script src="js/BingLayer.js"></script>
 	<script src="js/vendor/custom.modernizr.js"></script>
 
 	<style>
@@ -62,6 +62,26 @@
 		top: 10px; right: 10px;
 	}
 
+	 .left-column {
+        /*overflow: auto !important;*/
+        height: 250px !important;
+	        padding: 20px !important;
+	        -moz-transition: height 0.5s;
+	        -o-transition: height 0.5s;
+	        -webkit-transition: height 0.5s;
+	        transition: height 0.5s;
+	        -moz-transform: translate3d(0, 0, 0);
+	        -ms-transform: translate3d(0, 0, 0);
+	        -o-transform: translate3d(0, 0, 0);
+	        -webkit-transform: translate3d(0, 0, 0);
+	        transform: translate3d(0, 0, 0);
+	    }
+
+    .left-column.open {
+        height: 250px !important;
+        padding: 0px!important;
+    }
+
 	.left-column li {
 		list-style-type: none;
 		margin: 0; padding: 10px 0;
@@ -81,7 +101,8 @@
 		.map { height: 200px; }
 
 		.left-column {
-			max-height: 250px; overflow: auto;
+			max-height: 250px; 
+            overflow: scroll;
 			border-bottom: 1px solid #ddd;
 		}
 	}
@@ -95,7 +116,7 @@
 					<div class="large-12 columns">
 						<div class="row collapse">
 							<div class="small-10 columns">
-								<input type="text" placeholder="Search here...">
+								<input type="text" id="searchInput" placeholder="Search here...">
 							</div>
 							<div class="small-2 columns">
 								<a href="#" class="button prefix" id="btn-search">Search</a>
@@ -103,29 +124,9 @@
 						</div>
 						<div class="row collapse relative">
 							<ul id="list">
-								<li>List Item 1</li>
-								<li>List Item 2</li>
-								<li>List Item 3</li>
-								<li>List Item 4</li>
-								<li>List Item 5</li>
-								<li>List Item 6</li>
-								<li>List Item 7</li>
-								<li>List Item 8</li>
-								<li>List Item 9</li>
-								<li>List Item 10</li>
-								<li>List Item 11</li>
-								<li>List Item 12</li>
-								<li>List Item 13</li>
-								<li>List Item 14</li>
-								<li>List Item 15</li>
-								<li>List Item 16</li>
-								<li>List Item 17</li>
-								<li>List Item 18</li>
-								<li>List Item 19</li>
-								<li>List Item 20</li>
-								<ul>
-								</div>
-							</div>
+							</ul>
+	    			        </div>
+					    </div>
 						</div>
 					</form>
 				</div>
@@ -145,44 +146,113 @@
 			</div>
 
 			<script src="js/vendor/jquery.js"></script>
+            <script src="js/jaydata/datajs-1.0.3-patched.js"></script>
+            <script src="js/jaydata/jaydata.js"></script>
 			<script src="js/foundation.min.js"></script>
 
 			<script>
-		// set map height
-		if(window.orientation === undefined){
-			document.getElementById("row-full").style.height = window.innerHeight + "px";
-		}
-		document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
+			    // set map height
+			    //if (window.orientation === undefined) {
+			    if (L.Browser.mobile) {
+			        document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
+			    } else {
+			        document.getElementById("row-full").style.height = window.innerHeight + "px";
+			        document.getElementById("map").style.height = (window.innerHeight) + "px";
+			    }
 
-		// create a map in the "map" div, set the view to a given place and zoom
-		var map = L.map('map').setView([51.505, -0.09], 13);
 
-		// add an OpenStreetMap tile layer
-		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-		}).addTo(map);
+			    /*
 
-		// add a marker in the given location, attach some popup content to it and open the popup
-		L.marker([51.5, -0.09]).addTo(map)
-		.on('click', function(e){
-			toggleRightPanel();
-		});
+			    if (window.orientation === undefined) {
+			        document.getElementById("row-full").style.height = window.innerHeight + "px";
+			    }
+			    document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
 
-		function toggleRightPanel(){
-			$(".right-panel").toggleClass("hidden");
-		}
 
-		function toggleMap(){
-			var left = $(".left-column");
-			left.toggle();
+                */
+			    var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
 
-			if (left.is(":visible")){
-				document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
-			} else {
-				document.getElementById("map").style.height = window.innerHeight + "px";
-			}
-			console.log("resize map here..");
-		}
+			    lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
+			    var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
+			    var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
+			    var cloudmade = new L.TileLayer('http://{s}.tile.cloudmade.com/003d6e8d9af14e7582b462c10e572a1a/997/256/{z}/{x}/{y}.png', { maxZoom: 19 });
+
+			    lmap.addLayer(bing);
+
+			    navigator.geolocation.getCurrentPosition(function (o) {
+			        //lmap.setView([o.coords.latitude, o.coords.longitude], 19);
+			        lmap.setView([40.72121341440144, -74.00126159191132], 15);
+			        console.log("position:", o);
+			    })
+
+			    var resultPins;
+
+			    //$('#searchInput').keyup(function () {
+			    //});
+
+
+
+			    $data.initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
+                    .then(function (mydatabase, factory, type) {
+
+                        var resultPins;
+
+                        $('#searchInput').keyup(function () {
+                            var search = this.value;
+                            if (search.length > 3) {
+                                doSearch(search);
+                            };
+                        });
+
+
+                        function doSearch(search) {
+                            mydatabase.getGeo(lmap.getCenter(), '0.1', 10, search)
+                                       .then(function (r) {
+                                           $('#list').empty();
+                                           if (resultPins) {
+                                               lmap.removeLayer(resultPins);
+                                           }
+                                           resultPins = new L.LayerGroup();
+                                           resultPins.addTo(lmap);
+                                           r.results.forEach(function (p) {
+                                               var marker = L.marker([p.record.lat, p.record.lon]);
+                                               marker.addTo(resultPins);
+                                               $('#list').append("<li>" + p.record.name + "<br />" + p.record.addr + ", dist: " +
+                                                   marker.getLatLng().distanceTo(lmap.getCenter()) +
+                                                   "</li>");
+                                           });
+                                       })
+                        }
+                    });
+			    // create a map in the "map" div, set the view to a given place and zoom
+			    //var map = L.map('map').setView([51.505, -0.09], 13);
+
+			    //// add an OpenStreetMap tile layer
+			    //L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+			    //    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+			    //}).addTo(map);
+
+			    //// add a marker in the given location, attach some popup content to it and open the popup
+			    //L.marker([51.5, -0.09]).addTo(map)
+                //.on('click', function (e) {
+                //    toggleRightPanel();
+                //});
+
+			    //function toggleRightPanel() {
+			    //    $(".right-panel").toggleClass("hidden");
+			    //}
+
+			    //function toggleMap() {
+			    //    var left = $(".left-column");
+			    //    left.toggleClass('open');
+
+			    //    if (left.is(":visible")) {
+			    //        document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
+			    //    } else {
+			    //        document.getElementById("map").style.height = window.innerHeight + "px";
+			    //    }
+			    //    console.log("resize map here..");
+			    //}
 		</script>
 		<script>$(document).foundation();</script>
 	</body>
