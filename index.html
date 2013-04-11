@@ -79,45 +79,54 @@
 	        console.log("position:", o);
 	    });
 
+	    var points = {};
+
 	    var resultPins;
 
 	    //$('#searchInput').keyup(function () {
 	    //});
 
-		$data.initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
-		.then(function (mydatabase, factory, type) {
+	    $('#searchInput').keyup(function () {
+	        var search = this.value;
+	        if (search.length > 3) {
+	            doSearch(search);
+	        };
+	    });
+
+
+
+	    function doSearch(search) {
+
+	        $.getJSON("http://hyperlocal.redth.info/search?q=" + search + "&ct_lat=40.720223&ct_lng=-73.995994&radius=0.01&callback=?",
+                function (r) {
+                    console.dir(r);
+                });
+	        //mydatabase.getGeo(lmap.getCenter(), '0.1', 10, search)
+            //.then(function (r) {
+            //    $('#list').empty();
+            //    if (resultPins) {
+            //        lmap.removeLayer(resultPins);
+            //    }
+            //    resultPins = new L.LayerGroup();
+            //    resultPins.addTo(lmap);
+            //    r.results.forEach(function (p) {
+            //        var marker = L.marker([p.record.lat, p.record.lon]);
+            //        marker.addTo(resultPins).on('click', function (e) {
+            //            toggleRightPanel();
+            //        });
+            //        var dist = marker.getLatLng().distanceTo(lmap.getCenter()).toString().split(".")[0];
+            //        $('#list').append("<li>" + p.record.name + "<br />" + p.record.addr + ", <br />distance: " +
+            //             dist + " meters</li>");
+            //    });
+            //})
+	    }
+	    $data
+            .initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
+		    .then(function (mydatabase, factory, type) {
 
 			var resultPins;
 
-			$('#searchInput').keyup(function () {
-				var search = this.value;
-				if (search.length > 3) {
-					doSearch(search);
-				};
-			});
 
-
-			function doSearch(search) {
-				mydatabase.getGeo(lmap.getCenter(), '0.1', 10, search)
-				.then(function (r) {
-					$('#list').empty();
-					if (resultPins) {
-						lmap.removeLayer(resultPins);
-					}
-					resultPins = new L.LayerGroup();
-					resultPins.addTo(lmap);
-					r.results.forEach(function (p) {
-						var marker = L.marker([p.record.lat, p.record.lon]);
-						marker.addTo(resultPins).on('click', function (e) {
-							toggleRightPanel();
-						});
-
-						$('#list').append("<li>" + p.record.name + "<br />" + p.record.addr + ", dist: " +
-							marker.getLatLng().distanceTo(lmap.getCenter()) +
-							"</li>");
-					});
-				})
-			}
 		});
 	</script>
 	<script>$(document).foundation();</script>
