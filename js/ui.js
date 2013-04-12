@@ -8,6 +8,10 @@ if (L.Browser.mobile) {
 }
 document.getElementById("map").style.height = window.innerHeight + "px";
 
+function showRightPanel() {
+    $(".right-panel").removeClass("hidden");
+}
+
 function toggleRightPanel() {
 	$(".right-panel").toggleClass("hidden");
 }

@@ -51,7 +51,7 @@
 		<div class="box-padding-high box-white right-panel hidden">
 			<i class="foundicon-remove absolute" onclick="toggleRightPanel()"></i>
 
-			<img src="http://placehold.it/400x300&text=[img]" />
+<!--			<img src="http://placehold.it/400x300&text=[img]" />-->
             <div id="poiEditor">
 
             </div>
@@ -68,143 +68,102 @@
 	<script src="js/jaydata/jaydata.js"></script>
 	<script src="js/foundation.min.js"></script>
 	<script src="js/ui.js"></script>
-    <script src="js/app.js"></script>
 
     <script type="text/x-jsrender" id="poiTemplate">
-        <li>{^{> record.name}} {{> ~f() }}</li>
+        <li>{^{> record.name}} <a href="#" class="edit-command" style="float:right">Edit</a></li>
     </script>
 
     <script type="text/x-jsrender" id="popupTemplate">
         <div>
             <div>{^{> record.name}}</div>
-            <div>Distance:</div>
         </div>
     </script>
 
     <script type="text/x-jsrender" id="poiEditorTemplate">
-        <div>
-            Name: <input data-link="record.name" />
-        </div>
+        <form>
+            <h3>Manage point</h3>
+            <div class="row">
+              <div class="large-12 columns">
+                <input type="text" style="border:0px solid black;box-shadow:none;font-size:larger;font-weight:bold" placeholder="Name your point" data-link="record.name">
+              </div>
+            </div>
+            <fieldset>
+                <legend>Taxonomy</legend>
+                <div class="row">
+                  <div class="large-6 columns">
+                    <label>Category</label>
+                    <input type="text" data-link="record.cat" placeholder="Category">
+                  </div>
+                  <div class="large-6 columns">
+                    <label>SubCat</label>
+                    <input type="text" data-link="record.subcat" placeholder="Subcategory">
+                  </div>
+                </div>
+                  <div class="row">
+                  <div class="large-12 columns">
+                    <label>Type</label>
+                    <input type="text" data-link="record.type" placeholder="Type">
+                  </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Address</legend>
+                <div class="row">
+                  <div class="large-6 columns">
+                    <label>Address</label>
+                    <input type="text" data-link="record.addr" placeholder="Street address">
+                  </div>
+                  <div class="large-6 columns">
+                    <label>Phone</label>
+                    <input type="text" data-link="record.phone" placeholder="large-4.columns">
+                  </div>
+                </div>
+                <div class="row">
+                   <div class="large-4 columns">
+                    <label>ZIP/Postal</label>
+                    <input type="text" data-link="record.postal" placeholder="large-4.columns">
+                  </div>
+                   <div class="large-4 columns">
+                    <label>City</label>
+                    <input type="text" data-link="record.city" placeholder="large-4.columns">
+                  </div>
+                   <div class="large-4 columns">
+                    <label>Country</label>
+                    <input type="text" data-link="record.country" placeholder="large-4.columns">
+                  </div>
+                </div>
+            </fieldset>
+
+
+            <fieldset>
+                <legend>Location</legend>
+            <div class="row">
+                  <div class="small-6 columns">
+                      <label>Latitude</label>
+                    <input type="text" data-link="record.lat" placeholder="small-9.columns">
+                  </div>
+                  <div class="small-6 columns">
+                      <label>Longitude</label>
+                    <input type="text" data-link="record.lon" placeholder="small-9.columns">
+                  </div>
+            </div>
+            </fieldset>
+		    <div class="row">
+                <div class="large-4 columns">
+                    <a href="#" class="button prefix success save-command">Save</a>
+                </div>
+                <div class="large-4 columns">
+    	            <a href="#" class="button prefix alert">Remove</a>
+                </div>
+                <div class="large-4 columns">
+
+                </div>
+		    </div>
+
+        </form>
     </script>
-	<script>
-	    var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
-
-	    lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
-	    var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
-
-	    lmap.addLayer(bing);
-
-	    navigator.geolocation.getCurrentPosition(function (o) {
-	        //lmap.setView([o.coords.latitude, o.coords.longitude], 19);
-	        lmap.setView([40.72121341440144, -74.00126159191132], 15);
-	        console.log("position:", o);
-	    });
-
-	    var points = {};
-
-	    var resultPins = L.layerGroup().addTo(lmap);
-
-	    //$('#searchInput').keyup(function () {
-	    //});
-
-	    var visiblePoints = [];
-
-
-	    $.templates({
-	        poiTemplate: '#poiTemplate',
-            poiEditorTemplate: '#poiEditorTemplate'
-	    });
-
-	    //$.link.poiTemplate('#list', visiblePoints);
-
-	    $('#searchInput').keyup(function () {
-	        if (!(window.event.altKey || window.event.shiftKey || window.event.ctrlKey)) {
-	            var search = this.value;
-	            if (search.length > 2) {
-	                doSearch(search);
-	            };
-	        }
-	    });
-
-	    var results = [];
-
-	    $([results]).bind("arrayChange", function (evt, o) {
-	        switch (o.change) {
-	            case "insert":
-	                o.items.forEach(function (p) {
-	                    var marker = L.marker([p.record.lat, p.record.lon]);
-
-	                    marker.addTo(resultPins).on('click', function (e) {
-	                        toggleRightPanel();
-	                    });
-
-	                    var popup = $('#popupTemplate').render(p);
-	                    marker.bindPopup(popup);
-	                    p.marker = marker;
-
-	                    p.removeFromMap = function () {
-	                        resultPins.removeLayer(marker);
-	                    }
-	                });
-	                break;
-	            default:
-	                o.items.forEach(function (item) {
-	                    item.removeFromMap();
-	                });
-	        };
-	    });
-
-	    $.link.poiTemplate('#list', results).on("click", "li", function () {
-	        $.view(this).data.marker.openPopup();
-	        $.link.poiEditorTemplate('#poiEditor', $.view(this).data);
-	        toggleRightPanel();
-	    });
-
-
-	    $.views.helpers({
-	        f: function () { return "f" }
-	    });
-	    function doSearch(q) {
-	        search({
-	            bounds: lmap.getBounds(),
-                limit: 500,
-	            q: q,
-	        }).then(function (x) {
-	            $.observable(results).remove(0, results.length);
-	            $.observable(results).insert(0, x.results);
-	        })
-	        //$.getJSON("http://hyperlocal.redth.info/search?q=" + search + "&ct_lat=40.720223&ct_lng=-73.995994&radius=0.01&callback=?",
-	        //    function (r) {
-	        //        console.dir(r);
-	        //    });
-	        //mydatabase.getGeo(lmap.getCenter(), '0.1', 10, search)
-	        //.then(function (r) {
-	        //    $('#list').empty();
-	        //    if (resultPins) {
-	        //        lmap.removeLayer(resultPins);
-	        //    }
-	        //    resultPins = new L.LayerGroup();
-	        //    resultPins.addTo(lmap);
-	        //    r.results.forEach(function (p) {
-	        //        var marker = L.marker([p.record.lat, p.record.lon]);
-	        //        marker.addTo(resultPins).on('click', function (e) {
-	        //            toggleRightPanel();
-	        //        });
-	        //        var dist = marker.getLatLng().distanceTo(lmap.getCenter()).toString().split(".")[0];
-	        //        $('#list').append("<li>" + p.record.name + "<br />" + p.record.addr + ", <br />distance: " +
-	        //             dist + " meters</li>");
-	        //    });
-	        //})
-	    }
-	    //$data
-	    //    .initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
-	    //    .then(function (mydatabase, factory, type) {
-
-	    //	var resultPins;
-
-
-	    //});
-	</script>
 	<script>$(document).foundation();</script>
+    <script src="js/app.js"></script>
 </body>
 </html>
