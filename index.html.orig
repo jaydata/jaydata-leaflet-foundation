@@ -1,0 +1,357 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, minimum-scale=1, user-scalable=0">
+
+	<title>JayData vs. Leafleft vs. Foundation 4</title>
+
+	<link rel="stylesheet" href="css/normalize.css" />
+	<link rel="stylesheet" href="css/foundation.css" />
+	<link rel="stylesheet" href="css/general_foundicons.css" />
+
+	<!-- LEAFLET -->
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css" />
+	<script src="http://cdn.leafletjs.com/leaflet-0.5/leaflet.js"></script>
+	<script src="js/BingLayer.js"></script>
+	<script src="js/vendor/custom.modernizr.js"></script>
+
+	<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+	<div id="row-full" class="row row-full">
+		<div class="large-3 three columns left-column">
+			<form>
+				<div class="row">
+					<div class="large-12 columns box-padding-medium">
+						<div class="row collapse">
+							<div class="small-10 columns">
+								<input type="text" id="searchInput" placeholder="Search here...">
+							</div>
+							<div class="small-2 columns">
+								<!--<a href="#" class="button prefix" id="btn-search">Search</a>-->
+							</div>
+						</div>
+						<div class="row collapse relative">
+                            <div id="listcontainer">
+
+                            </div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div class="large-9 columns reset-padding relative">
+			<i class="gen-enclosed foundicon-location toggle-map show-for-small" onclick="toggleMap()"></i>
+			<div id="map" class="map"></div>
+		</div>
+
+		<div class="box-padding-high box-white right-panel hidden">
+			<i class="foundicon-remove absolute" onclick="toggleRightPanel()"></i>
+
+<!--			<img src="http://placehold.it/400x300&text=[img]" />-->
+            <div id="poiEditor">
+
+            </div>
+<!--			<h4>This is a content section.</h4>
+			<p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>-->
+		</div>
+	</div>
+
+	<script src="js/vendor/jquery.js"></script>
+    <script src="js/vendor/jsrender.js"></script>
+    <script src="js/vendor/jquery.observable.js"></script>
+    <script src="js/vendor/jquery.views.js"></script>
+	<script src="js/jaydata/datajs-1.0.3-patched.js"></script>
+	<script src="js/jaydata/jaydata.js"></script>
+	<script src="js/foundation.min.js"></script>
+	<script src="js/ui.js"></script>
+
+    <script type="text/x-jsrender" id="poiTemplate">
+        <li>{^{> record.name}} <a href="#" class="edit-command" style="float:right">Edit</a></li>
+    </script>
+
+    <script type="text/x-jsrender" id="poiListTemplate">
+        <h3 class="hide-for-small">Results</h3>
+        <ul id="list">
+            {^{for items}}
+                <li data-link="css-background-color{:~bgColor(#index, ~app.selectedItem)}">
+                    {^{> record.name}} 
+                    <a href="#" class="edit-command" style="float:right">Edit</a>
+                </li>
+            {{/for}}
+        </ul>
+    </script>
+
+    <script type="text/x-jsrender" id="popupTemplate">
+        <div>
+            <div>{^{> record.name}}</div>
+        </div>
+    </script>
+
+    <script type="text/x-jsrender" id="poiEditorTemplate">
+        {^{if selectedItem}}
+        {^{for selectedPoint}}
+        <form>
+            <h3>Manage point</h3>
+            <div class="row">
+              <div class="large-12 columns">
+                <input type="text" style="border:0px solid black;box-shadow:none;font-size:larger;font-weight:bold" placeholder="Name your point" data-link="record.name">
+              </div>
+            </div>
+            <fieldset>
+                <legend>Taxonomy</legend>
+                <div class="row">
+                  <div class="large-6 columns">
+                    <label>Category</label>
+                    <input type="text" data-link="record.cat" placeholder="Category">
+                  </div>
+                  <div class="large-6 columns">
+                    <label>SubCat</label>
+                    <input type="text" data-link="record.subcat" placeholder="Subcategory">
+                  </div>
+                </div>
+                  <div class="row">
+                  <div class="large-12 columns">
+                    <label>Type</label>
+                    <input type="text" data-link="record.type" placeholder="Type">
+                  </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Address</legend>
+                <div class="row">
+                  <div class="large-6 columns">
+                    <label>Address</label>
+                    <input type="text" data-link="record.addr" placeholder="Street address">
+                  </div>
+                  <div class="large-6 columns">
+                    <label>Phone</label>
+                    <input type="text" data-link="record.phone" placeholder="large-4.columns">
+                  </div>
+                </div>
+                <div class="row">
+                   <div class="large-4 columns">
+                    <label>ZIP/Postal</label>
+                    <input type="text" data-link="record.postal" placeholder="large-4.columns">
+                  </div>
+                   <div class="large-4 columns">
+                    <label>City</label>
+                    <input type="text" data-link="record.city" placeholder="large-4.columns">
+                  </div>
+                   <div class="large-4 columns">
+                    <label>Country</label>
+                    <input type="text" data-link="record.country" placeholder="large-4.columns">
+                  </div>
+                </div>
+            </fieldset>
+
+
+            <fieldset>
+                <legend>Location</legend>
+            <div class="row">
+                  <div class="small-6 columns">
+                      <label>Latitude</label>
+                    <input type="text" data-link="record.lat" placeholder="small-9.columns">
+                  </div>
+                  <div class="small-6 columns">
+                      <label>Longitude</label>
+                    <input type="text" data-link="record.lon" placeholder="small-9.columns">
+                  </div>
+            </div>
+            </fieldset>
+		    <div class="row">
+                <div class="large-4 columns">
+                    <a href="#" class="button prefix success save-command">Save</a>
+                </div>
+                <div class="large-4 columns">
+    	            <a href="#" class="button prefix alert">Remove</a>
+                </div>
+                <div class="large-4 columns">
+
+                </div>
+		    </div>
+        </form>
+        {{/for}}
+        {{/if}}
+    </script>
+	<script>$(document).foundation();</script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+=======
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, minimum-scale=1, user-scalable=0">
+
+	<title>JayData vs. Leafleft vs. Foundation 4</title>
+
+	<link rel="stylesheet" href="css/normalize.css" />
+	<link rel="stylesheet" href="css/foundation.css" />
+	<link rel="stylesheet" href="css/general_foundicons.css" />
+
+	<!-- LEAFLET -->
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css" />
+	<script src="http://cdn.leafletjs.com/leaflet-0.5/leaflet.js"></script>
+	<script src="js/BingLayer.js"></script>
+	<script src="js/vendor/custom.modernizr.js"></script>
+
+	<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+	<div id="row-full" class="row row-full">
+		<div class="large-3 three columns left-column max-height-scroll">
+			<form>
+				<div class="row">
+					<div class="large-12 columns box-padding-medium">
+						<div class="row collapse">
+							<div class="small-10 columns">
+								<input type="text" id="searchInput" placeholder="Search here...">
+							</div>
+							<div class="small-2 columns">
+								<!--<a href="#" class="button prefix" id="btn-search">Search</a>-->
+							</div>
+						</div>
+						<div class="row collapse relative">
+							<ul id="list">
+							</ul>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div class="large-9 columns reset-padding relative">
+			<i class="gen-enclosed foundicon-location toggle-map show-for-small" onclick="toggleMap()"></i>
+			<div id="map" class="map"></div>
+		</div>
+
+		<div class="box-padding-high box-white right-panel hidden max-height-scroll">
+			<i class="foundicon-remove absolute" onclick="toggleRightPanel()"></i>
+
+<!--			<img src="http://placehold.it/400x300&text=[img]" />-->
+            <div id="poiEditor">
+
+            </div>
+<!--			<h4>This is a content section.</h4>
+			<p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>-->
+		</div>
+	</div>
+
+	<script src="js/vendor/jquery.js"></script>
+    <script src="js/vendor/jsrender.js"></script>
+    <script src="js/vendor/jquery.observable.js"></script>
+    <script src="js/vendor/jquery.views.js"></script>
+	<script src="js/jaydata/datajs-1.0.3-patched.js"></script>
+	<script src="js/jaydata/jaydata.js"></script>
+	<script src="js/foundation.min.js"></script>
+	<script src="js/ui.js"></script>
+
+    <script type="text/x-jsrender" id="poiTemplate">
+        <li>{^{> record.name}} <a href="#" class="edit-command" style="float:right">Edit</a></li>
+    </script>
+
+    <script type="text/x-jsrender" id="popupTemplate">
+        <div>
+            <div>{^{> record.name}}</div>
+        </div>
+    </script>
+
+    <script type="text/x-jsrender" id="poiEditorTemplate">
+        <form>
+            <h3>Manage point</h3>
+            <div class="row">
+              <div class="large-12 columns">
+                <input type="text" style="border:0px solid black;box-shadow:none;font-size:larger;font-weight:bold" placeholder="Name your point" data-link="record.name">
+              </div>
+            </div>
+            <fieldset>
+                <legend>Taxonomy</legend>
+                <div class="row">
+                  <div class="large-6 columns">
+                    <label>Category</label>
+                    <input type="text" data-link="record.cat" placeholder="Category">
+                  </div>
+                  <div class="large-6 columns">
+                    <label>SubCat</label>
+                    <input type="text" data-link="record.subcat" placeholder="Subcategory">
+                  </div>
+                </div>
+                  <div class="row">
+                  <div class="large-12 columns">
+                    <label>Type</label>
+                    <input type="text" data-link="record.type" placeholder="Type">
+                  </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Address</legend>
+                <div class="row">
+                  <div class="large-6 columns">
+                    <label>Address</label>
+                    <input type="text" data-link="record.addr" placeholder="Street address">
+                  </div>
+                  <div class="large-6 columns">
+                    <label>Phone</label>
+                    <input type="text" data-link="record.phone" placeholder="large-4.columns">
+                  </div>
+                </div>
+                <div class="row">
+                   <div class="large-4 columns">
+                    <label>ZIP/Postal</label>
+                    <input type="text" data-link="record.postal" placeholder="large-4.columns">
+                  </div>
+                   <div class="large-4 columns">
+                    <label>City</label>
+                    <input type="text" data-link="record.city" placeholder="large-4.columns">
+                  </div>
+                   <div class="large-4 columns">
+                    <label>Country</label>
+                    <input type="text" data-link="record.country" placeholder="large-4.columns">
+                  </div>
+                </div>
+            </fieldset>
+
+
+            <fieldset>
+                <legend>Location</legend>
+            <div class="row">
+                  <div class="small-6 columns">
+                      <label>Latitude</label>
+                    <input type="text" data-link="record.lat" placeholder="small-9.columns">
+                  </div>
+                  <div class="small-6 columns">
+                      <label>Longitude</label>
+                    <input type="text" data-link="record.lon" placeholder="small-9.columns">
+                  </div>
+            </div>
+            </fieldset>
+		    <div class="row">
+                <div class="large-4 columns">
+                    <a href="#" class="button prefix success save-command">Save</a>
+                </div>
+                <div class="large-4 columns">
+    	            <a href="#" class="button prefix alert">Remove</a>
+                </div>
+                <div class="large-4 columns">
+
+                </div>
+		    </div>
+
+        </form>
+    </script>
+	<script>$(document).foundation();</script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+>>>>>>> 5b24b5859671e3bfd486b585cf42783b52bd49da
