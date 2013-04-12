@@ -31,7 +31,7 @@
 								<input type="text" id="searchInput" placeholder="Search here...">
 							</div>
 							<div class="small-2 columns">
-								<a href="#" class="button prefix" id="btn-search">Search</a>
+								<!--<a href="#" class="button prefix" id="btn-search">Search</a>-->
 							</div>
 						</div>
 						<div class="row collapse relative">
@@ -51,77 +51,119 @@
 		<div class="box-padding-high box-white right-panel hidden max-height-scroll">
 			<i class="foundicon-remove absolute" onclick="toggleRightPanel()"></i>
 
-			<img src="http://placehold.it/400x300&text=[img]" />
-			<h4>This is a content section.</h4>
-			<p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
-			<p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
-			<p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
+<!--			<img src="http://placehold.it/400x300&text=[img]" />-->
+            <div id="poiEditor">
+
+            </div>
+<!--			<h4>This is a content section.</h4>
+			<p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>-->
 		</div>
 	</div>
 
 	<script src="js/vendor/jquery.js"></script>
+    <script src="js/vendor/jsrender.js"></script>
+    <script src="js/vendor/jquery.observable.js"></script>
+    <script src="js/vendor/jquery.views.js"></script>
 	<script src="js/jaydata/datajs-1.0.3-patched.js"></script>
 	<script src="js/jaydata/jaydata.js"></script>
 	<script src="js/foundation.min.js"></script>
 	<script src="js/ui.js"></script>
 
-	<script>
-	    var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
+    <script type="text/x-jsrender" id="poiTemplate">
+        <li>{^{> record.name}} <a href="#" class="edit-command" style="float:right">Edit</a></li>
+    </script>
 
-	    lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
-	    var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
-	    var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
-	    var cloudmade = new L.TileLayer('http://{s}.tile.cloudmade.com/003d6e8d9af14e7582b462c10e572a1a/997/256/{z}/{x}/{y}.png', { maxZoom: 19 });
+    <script type="text/x-jsrender" id="popupTemplate">
+        <div>
+            <div>{^{> record.name}}</div>
+        </div>
+    </script>
 
-	    lmap.addLayer(bing);
+    <script type="text/x-jsrender" id="poiEditorTemplate">
+        <form>
+            <h3>Manage point</h3>
+            <div class="row">
+              <div class="large-12 columns">
+                <input type="text" style="border:0px solid black;box-shadow:none;font-size:larger;font-weight:bold" placeholder="Name your point" data-link="record.name">
+              </div>
+            </div>
+            <fieldset>
+                <legend>Taxonomy</legend>
+                <div class="row">
+                  <div class="large-6 columns">
+                    <label>Category</label>
+                    <input type="text" data-link="record.cat" placeholder="Category">
+                  </div>
+                  <div class="large-6 columns">
+                    <label>SubCat</label>
+                    <input type="text" data-link="record.subcat" placeholder="Subcategory">
+                  </div>
+                </div>
+                  <div class="row">
+                  <div class="large-12 columns">
+                    <label>Type</label>
+                    <input type="text" data-link="record.type" placeholder="Type">
+                  </div>
+                </div>
+            </fieldset>
 
-	    navigator.geolocation.getCurrentPosition(function (o) {
-	        //lmap.setView([o.coords.latitude, o.coords.longitude], 19);
-	        lmap.setView([40.72121341440144, -74.00126159191132], 15);
-	        console.log("position:", o);
-	    });
+            <fieldset>
+                <legend>Address</legend>
+                <div class="row">
+                  <div class="large-6 columns">
+                    <label>Address</label>
+                    <input type="text" data-link="record.addr" placeholder="Street address">
+                  </div>
+                  <div class="large-6 columns">
+                    <label>Phone</label>
+                    <input type="text" data-link="record.phone" placeholder="large-4.columns">
+                  </div>
+                </div>
+                <div class="row">
+                   <div class="large-4 columns">
+                    <label>ZIP/Postal</label>
+                    <input type="text" data-link="record.postal" placeholder="large-4.columns">
+                  </div>
+                   <div class="large-4 columns">
+                    <label>City</label>
+                    <input type="text" data-link="record.city" placeholder="large-4.columns">
+                  </div>
+                   <div class="large-4 columns">
+                    <label>Country</label>
+                    <input type="text" data-link="record.country" placeholder="large-4.columns">
+                  </div>
+                </div>
+            </fieldset>
 
-	    var resultPins;
 
-	    //$('#searchInput').keyup(function () {
-	    //});
+            <fieldset>
+                <legend>Location</legend>
+            <div class="row">
+                  <div class="small-6 columns">
+                      <label>Latitude</label>
+                    <input type="text" data-link="record.lat" placeholder="small-9.columns">
+                  </div>
+                  <div class="small-6 columns">
+                      <label>Longitude</label>
+                    <input type="text" data-link="record.lon" placeholder="small-9.columns">
+                  </div>
+            </div>
+            </fieldset>
+		    <div class="row">
+                <div class="large-4 columns">
+                    <a href="#" class="button prefix success save-command">Save</a>
+                </div>
+                <div class="large-4 columns">
+    	            <a href="#" class="button prefix alert">Remove</a>
+                </div>
+                <div class="large-4 columns">
 
-		$data.initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
-		.then(function (mydatabase, factory, type) {
+                </div>
+		    </div>
 
-			var resultPins;
-
-			$('#searchInput').keyup(function () {
-				var search = this.value;
-				if (search.length > 3) {
-					doSearch(search);
-				};
-			});
-
-
-			function doSearch(search) {
-				mydatabase.getGeo(lmap.getCenter(), '0.1', 10, search)
-				.then(function (r) {
-					$('#list').empty();
-					if (resultPins) {
-						lmap.removeLayer(resultPins);
-					}
-					resultPins = new L.LayerGroup();
-					resultPins.addTo(lmap);
-					r.results.forEach(function (p) {
-						var marker = L.marker([p.record.lat, p.record.lon]);
-						marker.addTo(resultPins).on('click', function (e) {
-							toggleRightPanel();
-						});
-
-						$('#list').append("<li>" + p.record.name + "<br />" + p.record.addr + ", dist: " +
-							marker.getLatLng().distanceTo(lmap.getCenter()) +
-							"</li>");
-					});
-				})
-			}
-		});
-	</script>
+        </form>
+    </script>
 	<script>$(document).foundation();</script>
+    <script src="js/app.js"></script>
 </body>
 </html>
