@@ -35,8 +35,7 @@
 							</div>
 						</div>
 						<div class="row collapse relative">
-							<ul id="list">
-							</ul>
+              <div id="listcontainer"></div>
 						</div>
 					</div>
 				</div>
@@ -64,96 +63,116 @@
   <script src="js/vendor/iscroll.js"></script>
   <script src="js/ui.js"></script>
 
-  <script type="text/x-jsrender" id="poiTemplate">
-    <li>{^{> record.name}} <a href="#" class="edit-command button small pull-right">Edit</a></li>
-  </script>
+    <script type="text/x-jsrender" id="poiTemplate">
+        <li>{^{> record.name}} <a href="#" class="edit-command" style="float:right">Edit</a></li>
+    </script>
 
-  <script type="text/x-jsrender" id="popupTemplate">
-    <div>
-      <div>{^{> record.name}}</div>
-    </div>
-  </script>
+    <script type="text/x-jsrender" id="poiListTemplate">
+        <h3 class="hide-for-small">Results</h3>
+        <ul id="list">
+            {^{for items}}
+                <li data-link="css-background-color{:~bgColor(#index, ~app.selectedItem)}">
+                    {^{> record.name}} 
+                    <a href="#" class="edit-command" style="float:right">Edit</a>
+                </li>
+            {{/for}}
+        </ul>
+    </script>
 
-  <script type="text/x-jsrender" id="poiEditorTemplate">
-  <form>
-    <div class="row">
-      <div class="large-12 columns">
-        <h3>Manage point</h3>
-        <input type="text" class="input-edit" placeholder="Name your point" data-link="record.name" />
-      </div>
-    </div>
-  <fieldset>
-    <legend>Taxonomy</legend>
-    <div class="row">
-      <div class="large-6 columns">
-        <label>Category</label>
-        <input type="text" data-link="record.cat" placeholder="Category" />
-      </div>
-      <div class="large-6 columns">
-        <label>SubCat</label>
-        <input type="text" data-link="record.subcat" placeholder="Subcategory" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="large-12 columns">
-        <label>Type</label>
-        <input type="text" data-link="record.type" placeholder="Type" />
-      </div>
-    </div>
-  </fieldset>
+    <script type="text/x-jsrender" id="popupTemplate">
+        <div>
+            <div>{^{> record.name}}</div>
+        </div>
+    </script>
 
-  <fieldset>
-    <legend>Address</legend>
-    <div class="row">
-      <div class="large-6 columns">
-        <label>Address</label>
-        <input type="text" data-link="record.addr" placeholder="Street address" />
-      </div>
-      <div class="large-6 columns">
-        <label>Phone</label>
-        <input type="text" data-link="record.phone" placeholder="large-4.columns" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="large-4 columns">
-        <label>ZIP/Postal</label>
-        <input type="text" data-link="record.postal" placeholder="large-4.columns" />
-      </div>
-      <div class="large-4 columns">
-        <label>City</label>
-        <input type="text" data-link="record.city" placeholder="large-4.columns" />
-      </div>
-      <div class="large-4 columns">
-        <label>Country</label>
-        <input type="text" data-link="record.country" placeholder="large-4.columns" />
-      </div>
-    </div>
-  </fieldset>
+    <script type="text/x-jsrender" id="poiEditorTemplate">
+        {^{if selectedItem}}
+        {^{for selectedPoint}}
+        <form>
+            <h3>Manage point</h3>
+            <div class="row">
+              <div class="large-12 columns">
+                <input type="text" style="border:0px solid black;box-shadow:none;font-size:larger;font-weight:bold" placeholder="Name your point" data-link="record.name">
+              </div>
+            </div>
+            <fieldset>
+                <legend>Taxonomy</legend>
+                <div class="row">
+                  <div class="large-6 columns">
+                    <label>Category</label>
+                    <input type="text" data-link="record.cat" placeholder="Category">
+                  </div>
+                  <div class="large-6 columns">
+                    <label>SubCat</label>
+                    <input type="text" data-link="record.subcat" placeholder="Subcategory">
+                  </div>
+                </div>
+                  <div class="row">
+                  <div class="large-12 columns">
+                    <label>Type</label>
+                    <input type="text" data-link="record.type" placeholder="Type">
+                  </div>
+                </div>
+            </fieldset>
 
-  <fieldset>
-    <legend>Location</legend>
-    <div class="row">
-      <div class="small-6 columns">
-        <label>Latitude</label>
-        <input type="text" data-link="record.lat" placeholder="small-9.columns" />
-      </div>
-      <div class="small-6 columns">
-        <label>Longitude</label>
-        <input type="text" data-link="record.lon" placeholder="small-9.columns" />
-      </div>
-    </div>
-  </fieldset>
-    <div class="row">
-      <div class="large-6 columns">
-        <a href="#" class="button prefix success save-command">Save</a>
-      </div>
-      <div class="large-6 columns">
-        <a href="#" class="button prefix alert">Remove</a>
-      </div>
-    </div>
-  </form>
-  </script>
+            <fieldset>
+                <legend>Address</legend>
+                <div class="row">
+                  <div class="large-6 columns">
+                    <label>Address</label>
+                    <input type="text" data-link="record.addr" placeholder="Street address">
+                  </div>
+                  <div class="large-6 columns">
+                    <label>Phone</label>
+                    <input type="text" data-link="record.phone" placeholder="large-4.columns">
+                  </div>
+                </div>
+                <div class="row">
+                   <div class="large-4 columns">
+                    <label>ZIP/Postal</label>
+                    <input type="text" data-link="record.postal" placeholder="large-4.columns">
+                  </div>
+                   <div class="large-4 columns">
+                    <label>City</label>
+                    <input type="text" data-link="record.city" placeholder="large-4.columns">
+                  </div>
+                   <div class="large-4 columns">
+                    <label>Country</label>
+                    <input type="text" data-link="record.country" placeholder="large-4.columns">
+                  </div>
+                </div>
+            </fieldset>
+
+
+            <fieldset>
+                <legend>Location</legend>
+            <div class="row">
+                  <div class="small-6 columns">
+                      <label>Latitude</label>
+                    <input type="text" data-link="record.lat" placeholder="small-9.columns">
+                  </div>
+                  <div class="small-6 columns">
+                      <label>Longitude</label>
+                    <input type="text" data-link="record.lon" placeholder="small-9.columns">
+                  </div>
+            </div>
+            </fieldset>
+        <div class="row">
+                <div class="large-4 columns">
+                    <a href="#" class="button prefix success save-command">Save</a>
+                </div>
+                <div class="large-4 columns">
+                  <a href="#" class="button prefix alert">Remove</a>
+                </div>
+                <div class="large-4 columns">
+
+                </div>
+        </div>
+        </form>
+        {{/for}}
+        {{/if}}
+    </script>
   <script>$(document).foundation();</script>
-  <script src="js/app.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

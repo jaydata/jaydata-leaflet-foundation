@@ -71,6 +71,7 @@ navigator.geolocation.getCurrentPosition(function (o) {
 
 $.templates({
     poiTemplate: '#poiTemplate',
+    poiListTemplate: '#poiListTemplate',
     poiEditorTemplate: '#poiEditorTemplate'
 });
 
@@ -85,6 +86,7 @@ $('#searchInput').keyup(function () {
 });
 
 var visiblePins = L.layerGroup().addTo(lmap);
+
 
 var results = [];
 $([results]).bind("arrayChange", function (evt, o) {
@@ -114,19 +116,40 @@ $([results]).bind("arrayChange", function (evt, o) {
     };
 });
 
-$.link.poiTemplate('#list', results)
+var app = {
+    pins: visiblePins,
+    selectedItem: null,
+    selectedPoint: null,
+    select: function() { },
+    items: results
+}
+
+$.views.helpers({
+    bgColor: function (index, selectedItem) {
+        // index could also be obtained from the view, which is available from the 'this' context for this function
+        // var index = this.view.index()
+        return (selectedItem && selectedItem.index === index) ? "yellow" : (index % 2 ? "#fdfdfe" : "#efeff2");
+    },
+    app: app
+})
+
+$.link.poiListTemplate('#listcontainer', app)
      .on("click", "li", function () {
+         var selectedItem = $.view(this);
+         $.observable(app).setProperty("selectedItem", selectedItem);
+         $.observable(app).setProperty("selectedPoint", selectedItem.data);
          var marker = $.view(this).data.getMarker();
          marker.openPopup();
          lmap.panTo(marker.getLatLng());
      })
-    .on("click", ".edit-command", function () {
-        $.link.poiEditorTemplate('#poiEditor', $.view(this).data)
-              .on("click", ".save-command", function () {
-                  toggleRightPanel();
-               });
-        showRightPanel();
+     .on("click", ".edit-command", function () {
+         showRightPanel();
     });
+
+$.link.poiEditorTemplate('#poiEditor', app)
+      .on("click", ".save-command", function () {
+          toggleRightPanel();
+      });
 
 
 $.views.helpers({
@@ -148,6 +171,7 @@ function doSearch(q) {
 }
 
 doSearch('Burg');
+
 //$data
 //    .initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
 //    .then(function (mydatabase, factory, type) {
