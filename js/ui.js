@@ -10,6 +10,7 @@ if (L.Browser.mobile) {
 	document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
 } else {
 	document.getElementById("row-full").style.height = window.innerHeight + "px";
+	document.getElementById("wrapper").style.height = window.innerHeight + "px";
 }
 document.getElementById("map").style.height = window.innerHeight + "px";
 
