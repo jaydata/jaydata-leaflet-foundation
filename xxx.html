@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, minimum-scale=1, user-scalable=0">
+
+	<title>JayData vs. Leafleft vs. Foundation 4</title>
+
+	<link rel="stylesheet" href="css/normalize.css" />
+	<link rel="stylesheet" href="css/foundation.css" />
+	<link rel="stylesheet" href="css/general_foundicons.css" />
+
+	<!-- LEAFLET -->
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css" />
+	<script src="http://cdn.leafletjs.com/leaflet-0.5/leaflet.js"></script>
+	<script src="js/BingLayer.js"></script>
+	<script src="js/vendor/custom.modernizr.js"></script>
+
+	<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+	<div id="row-full" class="row row-full">
+		<div class="large-3 three columns left-column">
+			<form>
+				<div class="row">
+					<div class="large-12 columns box-padding-medium">
+						<div class="row collapse">
+							<div class="small-10 columns">
+								<input type="text" id="searchInput" placeholder="Search here...">
+							</div>
+							<div class="small-2 columns">
+								<!--<a href="#" class="button prefix" id="btn-search">Search</a>-->
+							</div>
+						</div>
+						<div class="row collapse relative">
+							<ul id="list">
+							</ul>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div class="large-9 columns reset-padding relative">
+			<i class="gen-enclosed foundicon-location toggle-map show-for-small" onclick="toggleMap()"></i>
+			<div id="map" class="map"></div>
+		</div>
+
+		<div class="box-padding-high box-white right-panel hidden">
+			<i class="foundicon-remove absolute" onclick="toggleRightPanel()"></i>
+
+			<img src="http://placehold.it/400x300&text=[img]" />
+			<h4>This is a content section.</h4>
+			<p>Bacon ipsum dolor sit amet nulla ham qui sint exercitation eiusmod commodo, chuck duis velit. Aute in reprehenderit, dolore aliqua non est magna in labore pig pork biltong. Eiusmod swine spare ribs reprehenderit culpa. Boudin aliqua adipisicing rump corned beef.</p>
+		</div>
+	</div>
+
+	<script src="js/vendor/jquery.js"></script>
+    <script src="js/vendor/jsrender.js"></script>
+    <script src="js/vendor/jquery.observable.js"></script>
+    <script src="js/vendor/jquery.views.js"></script>
+	<script src="js/jaydata/datajs-1.0.3-patched.js"></script>
+	<script src="js/jaydata/jaydata.js"></script>
+	<script src="js/foundation.min.js"></script>
+	<script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+
+    <script type="text/x-jsrender" id="poiTemplate">
+        <li>{{> record.name}}</li>
+    </script>
+
+	<script>
+	    var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
+
+	    lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
+	    var osm = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
+	    var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
+	    var cloudmade = new L.TileLayer('http://{s}.tile.cloudmade.com/003d6e8d9af14e7582b462c10e572a1a/997/256/{z}/{x}/{y}.png', { maxZoom: 19 });
+
+	    lmap.addLayer(bing);
+
+	    navigator.geolocation.getCurrentPosition(function (o) {
+	        //lmap.setView([o.coords.latitude, o.coords.longitude], 19);
+	        lmap.setView([40.72121341440144, -74.00126159191132], 15);
+	        console.log("position:", o);
+	    });
+
+	    var points = {};
+
+	    var resultPins;
+
+	    //$('#searchInput').keyup(function () {
+	    //});
+
+	    var visiblePoints = [];
+
+
+	    $.templates({
+	        poiTemplate: '#poiTemplate'
+	    });
+
+	    //$.link.poiTemplate('#list', visiblePoints);
+
+	    $('#searchInput').keyup(function () {
+	        if (! (window.event.altKey || window.event.shiftKey || window.event.ctrlKey)) {
+	            var search = this.value;
+	            if (search.length > 2) {
+	                doSearch(search);
+	            };
+	        }
+	    });
+
+	    var results = [];
+
+	    $([results]).bind("arrayChange", function () {
+	        console.dir(arguments);
+	    });
+
+	    $.link.poiTemplate('#list', results);
+
+	    function doSearch(q) {
+	        search({
+                bounds: lmap.getBounds(),
+                q: q,
+	        }).then(function (x) {
+	            $.observable(results).remove(0, results.length);
+	            x.results.forEach(function (result) {
+	                $.observable(results).insert(results.length, result);
+	            });
+	        })
+	        //$.getJSON("http://hyperlocal.redth.info/search?q=" + search + "&ct_lat=40.720223&ct_lng=-73.995994&radius=0.01&callback=?",
+            //    function (r) {
+            //        console.dir(r);
+            //    });
+	        //mydatabase.getGeo(lmap.getCenter(), '0.1', 10, search)
+            //.then(function (r) {
+            //    $('#list').empty();
+            //    if (resultPins) {
+            //        lmap.removeLayer(resultPins);
+            //    }
+            //    resultPins = new L.LayerGroup();
+            //    resultPins.addTo(lmap);
+            //    r.results.forEach(function (p) {
+            //        var marker = L.marker([p.record.lat, p.record.lon]);
+            //        marker.addTo(resultPins).on('click', function (e) {
+            //            toggleRightPanel();
+            //        });
+            //        var dist = marker.getLatLng().distanceTo(lmap.getCenter()).toString().split(".")[0];
+            //        $('#list').append("<li>" + p.record.name + "<br />" + p.record.addr + ", <br />distance: " +
+            //             dist + " meters</li>");
+            //    });
+            //})
+	    }
+	    //$data
+        //    .initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
+		//    .then(function (mydatabase, factory, type) {
+
+		//	var resultPins;
+
+
+		//});
+	</script>
+	<script>$(document).foundation();</script>
+</body>
+</html>
