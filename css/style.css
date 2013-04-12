@@ -81,6 +81,12 @@ body {
 	border-radius: 100%;
 }
 
+.max-height-scroll {
+	max-height: 100%;
+	overflow: scroll;
+	-webkit-overflow-scrolling: touch;
+}
+
 @media only screen and (max-width: 768px) {
 	.row-full .left-column {
 		height: 0; max-height: 250px;
