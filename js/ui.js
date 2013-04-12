@@ -8,6 +8,11 @@ if (L.Browser.mobile) {
 }
 document.getElementById("map").style.height = window.innerHeight + "px";
 
+var maxH =  document.querySelectorAll(".max-height-scroll");
+for(var i = 0; i < maxH.length; i++){
+	maxH[i].style.maxHeight = window.innerHeight + "px";
+}
+
 function toggleRightPanel() {
 	$(".right-panel").toggleClass("hidden");
 }
