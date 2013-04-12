@@ -3,6 +3,8 @@ body {
 	width: 100%;
 	overflow: hidden !important;
 	overflow-x: hidden !important;
+	-webkit-user-select:none;
+    -webkit-text-size-adjust:none;
 }
 
 .row-full { max-width: 100%; }
@@ -11,6 +13,8 @@ body {
 
 .box-padding-high 	{ padding: 35px 20px; }
 .box-padding-medium { padding: 20px; }
+
+.pull-right { float: right; }
 
 .right-panel {
 	opacity: 1;
@@ -45,8 +49,25 @@ body {
 .absolute { position: absolute; }
 .reset-padding { padding: 0 !important; }
 
+.right-panel {
+	padding-top: 10px;
+}
+
+.right-panel h3 {
+	margin: 0 0 25px;
+}
+
+.right-panel .input-edit {
+	margin: 10px 0 0; padding-left: 0;
+	border: 0; 
+	box-shadow: none;
+	font-size: larger; font-weight: bold;
+}
+
+
 .right-panel .foundicon-remove {
-	top: 10px; right: 10px;
+	right: 20px;
+	z-index: 5000;
 }
 
 .left-column {
@@ -70,6 +91,7 @@ body {
 	list-style-type: none;
 	margin: 0; padding: 10px 0;
 	border-bottom: 1px dotted #E7E7E7;
+	clear: both; overflow: hidden;
 }
 
 .toggle-map {
@@ -87,6 +109,18 @@ body {
 	-webkit-overflow-scrolling: touch;
 }
 
+.foundicon-search.absolute {
+	top: 8px; left: 8px;
+}
+
+.input-search {
+	padding-left: 30px !important;
+}
+
+.button {
+	margin: 0;
+}
+
 @media only screen and (max-width: 768px) {
 	.row-full .left-column {
 		height: 0; max-height: 250px;
@@ -100,4 +134,45 @@ body {
 	}
 
 	.map { height: 200px; }
+}
+
+/*================================================================= ISCROLL =================================================================*/
+body,ul,li {
+	padding:0;
+	margin:0;
+	border:0;
+}
+
+#wrapper {
+	position:absolute; z-index:1;
+	top:45px; bottom:48px; left:0;
+	width:100%;
+	background:#aaa;
+	overflow:auto;
+}
+
+#scroller {
+	position:absolute; z-index:1;
+/*	-webkit-touch-callout:none;*/
+	-webkit-tap-highlight-color:rgba(0,0,0,0);
+	width:100%;
+	padding:0;
+}
+
+#scroller ul {
+	list-style:none;
+	padding:0;
+	margin:0;
+	width:100%;
+	text-align:left;
+}
+
+#scroller li {
+	padding:0 10px;
+	height:40px;
+	line-height:40px;
+	border-bottom:1px solid #ccc;
+	border-top:1px solid #fff;
+	background-color:#fafafa;
+	font-size:14px;
 }
