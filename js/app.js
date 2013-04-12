@@ -170,13 +170,14 @@ function doSearch(q) {
     })
 }
 
-doSearch('Burg');
-initAuth();
-setTimeout(function () {
-    if (!logedIn()) {
-        $('#login').foundation('reveal', 'open');
-    }
-}, 2000);
+doSearch('Starb');
+
+//initAuth();
+//setTimeout(function () {
+//    if (!logedIn()) {
+//        $('#login').foundation('reveal', 'open');
+//    }
+//}, 2000);
 
 //$data
 //    .initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
