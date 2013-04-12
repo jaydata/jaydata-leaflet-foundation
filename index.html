@@ -35,27 +35,36 @@
 							</div>
 						</div>
 						<div class="row collapse relative">
-              <div id="listcontainer"></div>
+                <h3 class="hide-for-small">Results</h3>
+                <div id="wrapper" class="iscroll-wrapper">
+                  <div id="scroller"  class="iscroll-scroller">
+                    <div id="listcontainer"></div>
+                  </div>
+                </div>
 						</div>
 					</div>
 				</div>
 			</form>
 		</div>
 
-		<div class="large-9 columns reset-padding relative">
+		<div class="large-9 columns reset-padding relative box-shadow">
 			<i class="gen-enclosed foundicon-location toggle-map show-for-small" onclick="toggleMap()"></i>
 			<div id="map" class="map"></div>
 		</div>
 
-        <div id="login" class="reveal-modal">
-            <a href="#" onclick="doLogin('facebook');">Facebook</a>
-            <a href="#" onclick="doLogin('google');">Google</a>
-            <a class="close-reveal-modal">&#215;</a>
-        </div>
+    <div id="login" class="reveal-modal">
+        <a href="#" onclick="doLogin('facebook');">Facebook</a>
+        <a href="#" onclick="doLogin('google');">Google</a>
+        <a class="close-reveal-modal">&#215;</a>
+    </div>
 
-		<div class="box-padding-high box-white right-panel hidden max-height-scroll">
-	     <i class="foundicon-remove absolute button medium" onclick="toggleRightPanel();"></i>
-      <div id="poiEditor"></div>
+		<div class="box-padding-high box-white right-panel hidden max-height-scroll box-shadow">
+	     <i class="foundicon-remove absolute button medium" onclick="hideRightPanel();"></i>
+       <div id="wrapper-right" class="iscroll-wrapper">
+          <div id="scroller-right"  class="iscroll-scroller">
+            <div id="poiEditor"></div>
+          </div>
+        </div>
     </div>
   </div>
 
@@ -74,15 +83,14 @@
     </script>
 
     <script type="text/x-jsrender" id="poiListTemplate">
-        <h3 class="hide-for-small">Results</h3>
-        <ul id="list">
-            {^{for items}}
-                <li data-link="css-background-color{:~bgColor(#index, ~app.selectedItem)}">
-                    {^{> record.name}} 
-                    <a href="#" class="edit-command" style="float:right">Edit</a>
-                </li>
-            {{/for}}
-        </ul>
+      <ul id="list" class="main-list">
+          {^{for items}}
+              <li data-link="css-background-color{:~bgColor(#index, ~app.selectedItem)}">
+                  {^{> record.name}} 
+                  <a href="#" class="edit-command button small" style="float:right">Edit</a>
+              </li>
+          {{/for}}
+      </ul>
     </script>
 
     <script type="text/x-jsrender" id="popupTemplate">
@@ -95,12 +103,14 @@
         {^{if selectedItem}}
         {^{for selectedPoint}}
         <form>
-            <h3>Manage point</h3>
-            <div class="row">
-              <div class="large-12 columns">
-                <input type="text" style="border:0px solid black;box-shadow:none;font-size:larger;font-weight:bold" placeholder="Name your point" data-link="record.name">
+            <fieldset>
+              <legend>Title</legend>
+              <div class="row">
+                <div class="large-12 columns">
+                  <input type="text" class="input-edit" placeholder="Name your point" data-link="record.name">
+                </div>
               </div>
-            </div>
+            </fieldset>
             <fieldset>
                 <legend>Taxonomy</legend>
                 <div class="row">
@@ -165,7 +175,7 @@
             </fieldset>
         <div class="row">
                 <div class="large-4 columns">
-                    <a href="#" class="button prefix success save-command">Save</a>
+                    <a href="#" class="button prefix save-command">Save</a>
                 </div>
                 <div class="large-4 columns">
                   <a href="#" class="button prefix alert">Remove</a>

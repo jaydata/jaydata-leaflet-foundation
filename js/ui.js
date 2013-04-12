@@ -1,6 +1,11 @@
+var iScrolls = {
+	listScroll: null,
+	rightScroll: null
+};
+
 document.body.style.width = window.innerWidth + "px";
 
-// set map height
+//================================================== SET MAP HEIGHT ==================================================//
 if (L.Browser.mobile) {
 	document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
 } else {
@@ -13,29 +18,73 @@ for(var i = 0; i < maxH.length; i++){
 	maxH[i].style.maxHeight = window.innerHeight + "px";
 }
 
-function showRightPanel() {
-	$(".right-panel").removeClass("hidden");
-}
-
-function toggleRightPanel() {
-	$(".right-panel").toggleClass("hidden");
-}
-
+//================================================== FUNCTIONS ==================================================//
 function toggleMap() {
 	var left = $(".left-column");
 	left.toggleClass("open");
 
 	if (left.hasClass("open")) {
 		document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
+		setTimeout(function(){
+			initListIScroll();
+		}, 350);
 	} else {
 		document.getElementById("map").style.height = window.innerHeight + "px";
 	}
 }
 
-/*var myScroll;
-function loaded() {
-	myScroll = new iScroll('wrapper');
+function hideRightPanel() {
+	$(".right-panel").addClass("hidden");
+}
+
+function showRightPanel() {
+	$(".right-panel").removeClass("hidden");
+
+	setTimeout(function(){
+		initRightIScroll();
+	}, 100);
+}
+
+function toggleRightPanel() {
+	var right = $(".right-column");
+	right.toggleClass("hidden");
+
+	if (!right.hasClass("hidden")) {
+		setTimeout(function(){
+			initRightIScroll();
+		}, 100);
+	}
+}
+
+function initRightIScroll(){
+	if(iScrolls.rightScroll){
+		iScrolls.rightScroll.destroy();
+		iScrolls.rightScroll = null;
+	}
+	
+	iScrolls.rightScroll = new iScroll('wrapper-right', {
+		bounce: false,
+		lockDirection: true,
+		checkDOMChanges: true,
+		useTransform: true,
+		useTransition: true
+	});
+}
+
+function initListIScroll(){
+	if(iScrolls.listScroll){
+		iScrolls.listScroll.destroy();
+		iScrolls.listScroll = null;
+	}
+
+	iScrolls.listScroll = new iScroll('wrapper', {
+		bounce: false,
+		lockDirection: true,
+		checkDOMChanges: true,
+		useTransform: true,
+		useTransition: true
+	});
 }
 
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-document.addEventListener('DOMContentLoaded', function () { setTimeout(loaded, 200); }, false);*/
+document.addEventListener('DOMContentLoaded', function () { setTimeout(initListIScroll(), 1500); }, false);

@@ -128,7 +128,7 @@ $.views.helpers({
     bgColor: function (index, selectedItem) {
         // index could also be obtained from the view, which is available from the 'this' context for this function
         // var index = this.view.index()
-        return (selectedItem && selectedItem.index === index) ? "yellow" : (index % 2 ? "#fdfdfe" : "#efeff2");
+        return (selectedItem && selectedItem.index === index) ? "#4EC1F7" : (index % 2 ? "#fdfdfe" : "#efeff2");
     },
     app: app
 })
@@ -148,7 +148,7 @@ $.link.poiListTemplate('#listcontainer', app)
 
 $.link.poiEditorTemplate('#poiEditor', app)
       .on("click", ".save-command", function () {
-          toggleRightPanel();
+          hideRightPanel();
       });
 
 
