@@ -23,8 +23,8 @@ function search(options) {
         var lb = options.bounds.getSouthWest();
         var rt = options.bounds.getNorthEast();
         query = {
-            lb_lat : lb.lat,
-            lb_lng : lb.lng,
+            lb_lat: lb.lat,
+            lb_lng: lb.lng,
             rt_lat: rt.lat,
             rt_lng: rt.lng
         }
@@ -44,7 +44,7 @@ function search(options) {
         offset: options.offset || 0
     });
 
-    
+
     url = "http://hyperlocal.redth.info/search?" + getAsQueryString(query);
     //url = "http://omniplaces.com/query_rewriter_m1?" + getAsQueryString(query);
     return new $.Deferred(function (newDefer) {
@@ -120,7 +120,7 @@ var app = {
     pins: visiblePins,
     selectedItem: null,
     selectedPoint: null,
-    select: function() { },
+    select: function () { },
     items: results
 }
 
@@ -144,7 +144,7 @@ $.link.poiListTemplate('#listcontainer', app)
      })
      .on("click", ".edit-command", function () {
          showRightPanel();
-    });
+     });
 
 $.link.poiEditorTemplate('#poiEditor', app)
       .on("click", ".save-command", function () {
@@ -172,11 +172,11 @@ function doSearch(q) {
 
 doSearch('Burg');
 initAuth();
-setTimeout(function () {
-    if (!logedIn()) {
-        $('#login').foundation('reveal', 'open');
-    }
-}, 2000);
+//setTimeout(function () {
+//    ensureAuthenticate()
+//    .then(function () { alert('auth ok'); })
+//    .fail(function () { alert('auth faild') });
+//}, 2000);
 
 //$data
 //    .initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
