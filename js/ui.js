@@ -1,41 +1,95 @@
-document.body.style.width = window.innerWidth + "px";
+function initUI() {
 
-// set map height
-if (L.Browser.mobile) {
-	document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
-} else {
-	document.getElementById("row-full").style.height = window.innerHeight + "px";
-}
-document.getElementById("map").style.height = window.innerHeight + "px";
 
-var maxH =  document.querySelectorAll(".max-height-scroll");
-for(var i = 0; i < maxH.length; i++){
-	maxH[i].style.maxHeight = window.innerHeight + "px";
-}
+    var iScrolls = {
+        listScroll: null,
+        rightScroll: null
+    };
 
-function showRightPanel() {
-	$(".right-panel").removeClass("hidden");
-}
+    document.body.style.width = window.innerWidth + "px";
 
-function toggleRightPanel() {
-	$(".right-panel").toggleClass("hidden");
-}
+    //================================================== SET MAP HEIGHT ==================================================//
+    if (L.Browser.mobile) {
+        document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
+    } else {
+        document.getElementById("row-full").style.height = window.innerHeight + "px";
+        document.getElementById("wrapper").style.height = window.innerHeight + "px";
+    }
+    document.getElementById("map").style.height = window.innerHeight + "px";
 
-function toggleMap() {
-	var left = $(".left-column");
-	left.toggleClass("open");
+    var maxH = document.querySelectorAll(".max-height-scroll");
+    for (var i = 0; i < maxH.length; i++) {
+        maxH[i].style.maxHeight = window.innerHeight + "px";
+    }
 
-	if (left.hasClass("open")) {
-		document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
-	} else {
-		document.getElementById("map").style.height = window.innerHeight + "px";
-	}
-}
+    //================================================== FUNCTIONS ==================================================//
+    window.toggleMap = function toggleMap() {
+        var left = $(".left-column");
+        left.toggleClass("open");
 
-/*var myScroll;
-function loaded() {
-	myScroll = new iScroll('wrapper');
-}
+        if (left.hasClass("open")) {
+            document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
+            setTimeout(function () {
+                initListIScroll();
+            }, 350);
+        } else {
+            document.getElementById("map").style.height = window.innerHeight + "px";
+        }
+    }
 
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-document.addEventListener('DOMContentLoaded', function () { setTimeout(loaded, 200); }, false);*/
+    window.hideRightPanel = function hideRightPanel() {
+        $(".right-panel").addClass("hidden");
+    }
+
+    window.showRightPanel = function showRightPanel() {
+        $(".right-panel").removeClass("hidden");
+
+        setTimeout(function () {
+            initRightIScroll();
+        }, 100);
+    }
+
+    window.toggleRightPanel = function toggleRightPanel() {
+        var right = $(".right-column");
+        right.toggleClass("hidden");
+
+        if (!right.hasClass("hidden")) {
+            setTimeout(function () {
+                initRightIScroll();
+            }, 100);
+        }
+    }
+
+    function initRightIScroll() {
+        if (iScrolls.rightScroll) {
+            iScrolls.rightScroll.destroy();
+            iScrolls.rightScroll = null;
+        }
+
+        iScrolls.rightScroll = new iScroll('wrapper-right', {
+            bounce: false,
+            lockDirection: true,
+            checkDOMChanges: true,
+            useTransform: true,
+            useTransition: true
+        });
+    }
+
+    function initListIScroll() {
+        if (iScrolls.listScroll) {
+            iScrolls.listScroll.destroy();
+            iScrolls.listScroll = null;
+        }
+
+        iScrolls.listScroll = new iScroll('wrapper', {
+            bounce: false,
+            lockDirection: true,
+            checkDOMChanges: true,
+            useTransform: true,
+            useTransition: true
+        });
+    }
+
+    document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+    document.addEventListener('DOMContentLoaded', function () { setTimeout(initListIScroll(), 1500); }, false);
+};

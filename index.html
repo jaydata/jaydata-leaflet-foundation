@@ -14,75 +14,113 @@
 	<link rel="stylesheet" href="css/foundation.css" />
 	<link rel="stylesheet" href="css/general_foundicons.css" />
 
-	<!-- LEAFLET -->
-	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css" />
-	<script src="http://cdn.leafletjs.com/leaflet-0.5/leaflet.js"></script>
-	<script src="js/BingLayer.js"></script>
 	<script src="js/vendor/custom.modernizr.js"></script>
 
 	<link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-	<div id="row-full" class="row row-full">
-		<div class="large-3 three columns left-column max-height-scroll">
-			<form>
-				<div class="row">
-					<div class="large-12 columns box-padding-medium">
-						<div class="row collapse">
-							<div class="small-12 columns relative">
-								<i class="general foundicon-search absolute"></i>
-                <input type="text" id="searchInput" class="input-search" value="Starb" placeholder="Search here...">
-							</div>
-						</div>
-						<div class="row collapse relative">
-              <div id="listcontainer"></div>
-						</div>
-					</div>
-				</div>
-			</form>
-		</div>
+    <div id="row-full" class="row row-full">
+    
+    </div>
 
-		<div class="large-9 columns reset-padding relative">
-			<i class="gen-enclosed foundicon-location toggle-map show-for-small" onclick="toggleMap()"></i>
-			<div id="map" class="map"></div>
-		</div>
+    <script id="mainTemplate" type="text/x-jsrender">
+		    <div class="large-3 three columns left-column max-height-scroll">
+			    <form>
+				    <div class="row">
+					    <div class="large-12 columns box-padding-medium">
+						    <div class="row collapse">
+							    <div class="small-12 columns relative">
+								    <i class="general foundicon-search absolute"></i>
+                                    <input type="text" id="searchInput" class="input-search" value="Starb" placeholder="Search here...">
+							    </div>
+						    </div>
+						    <div class="row collapse relative">
+                                <div id="wrapper" class="iscroll-wrapper">
+                                  <div id="scroller"  class="iscroll-scroller">
+                                    <div id="listcontainer">
+                                        {{include tmpl="#poiListTemplate"/}}
+                                    </div>
+                                  </div>
+                                </div>
+						    </div>
+					    </div>
+				    </div>
+			    </form>
+		    </div>
 
-        <div id="login" class="reveal-modal">
-            <a href="#" onclick="doLogin('facebook');">Facebook</a>
-            <a href="#" onclick="doLogin('google');">Google</a>
-            <a class="close-reveal-modal">&#215;</a>
+		    <div class="large-9 columns reset-padding relative box-shadow">
+			    <i class="gen-enclosed foundicon-location toggle-map show-for-small" onclick="toggleMap()"></i>
+			    <div id="map" class="map"></div>
+		    </div>
+
+		    <div class="box-padding-high box-white right-panel hidden max-height-scroll box-shadow">
+	         <i class="foundicon-remove absolute button medium" onclick="hideRightPanel();"></i>
+           <div id="wrapper-right" class="iscroll-wrapper">
+              <div id="scroller-right"  class="iscroll-scroller">
+                <div id="poiEditor">
+                    {{include tmpl="#poiEditorTemplate"/}}
+                </div>
+              </div>
+            </div>
         </div>
 
-		<div class="box-padding-high box-white right-panel hidden max-height-scroll">
-	     <i class="foundicon-remove absolute button medium" onclick="toggleRightPanel();"></i>
-      <div id="poiEditor"></div>
-    </div>
-  </div>
+        {{include tmpl="#addNewDialogTemplate"/}}
+    </script>
 
-  <script src="js/vendor/jquery.js"></script>
-  <script src="js/vendor/jsrender.js"></script>
-  <script src="js/vendor/jquery.observable.js"></script>
-  <script src="js/vendor/jquery.views.js"></script>
-  <script src="js/jaydata/datajs-1.0.3-patched.js"></script>
-  <script src="js/jaydata/jaydata.js"></script>
-  <script src="js/foundation.min.js"></script>
-  <script src="js/vendor/iscroll.js"></script>
-  <script src="js/ui.js"></script>
+<div id="login" class="reveal-modal">
+                <a href="#" onclick="doLogin('facebook');">Facebook</a>
+                <a href="#" onclick="doLogin('google');">Google</a>
+                <a href="#" onclick="closeLoginPopup()">      &#215;</a>
+</div>
+
+<script id="addNewDialogTemplate" type="text/x-jsrender">
+        <div id="addNewPoint" class="reveal-modal" style="z-index:1000">
+            <div class="row">
+                <div class="large-12 columns">
+                    <h1 class="hide-for-small">Add a new point</h1>
+                    <h3 class="show-for-small">Add point</h3>
+                </div>
+            </div>
+            <div class="row">
+                {^{for selectedPoint}}
+                    <div class="large-4 columns" data-bind="with: poi">
+                        <label>Name </label>    
+                        <input type="text" placeholder="Name of place"  data-link="record.name"/>
+                    </div>    
+                {{/for}}
+
+                <div class="large-8 columns">
+                    {^{for newAddress tmpl="#selectAddressTemplate" /}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="large-6 columns">
+                    <a href="#" class="button prefix ok-command">OK</a>
+                </div>
+                <div class="large-6 columns">
+                  <a href="#" class="button prefix neutral cancel-command">Cancel</a>
+                </div>
+            </div>
+        </div>
+</script>
+<script id="selectAddressTemplate" type="text/x-jsrender">
+    <label>Address</label>
+    <input type="text" readonly placeholder="Name of place"  data-link="Address.FormattedAddress"/>
+</script>
 
     <script type="text/x-jsrender" id="poiTemplate">
         <li>{^{> record.name}} <a href="#" class="edit-command" style="float:right">Edit</a></li>
     </script>
 
     <script type="text/x-jsrender" id="poiListTemplate">
-        <h3 class="hide-for-small">Results</h3>
-        <ul id="list">
-            {^{for items}}
-                <li data-link="css-background-color{:~bgColor(#index, ~app.selectedItem)}">
-                    {^{> record.name}} 
-                    <a href="#" class="edit-command" style="float:right">Edit</a>
-                </li>
-            {{/for}}
-        </ul>
+      <ul id="list" class="main-list">
+          {^{for items}}
+              <li data-link="css-background-color{:~bgColor(~app.selectedPoint)}">
+                  {^{> record.name}} 
+                  <a href="#" class="edit-command button small" style="float:right">Edit</a>
+              </li>
+          {{/for}}
+      </ul>
     </script>
 
     <script type="text/x-jsrender" id="popupTemplate">
@@ -92,15 +130,17 @@
     </script>
 
     <script type="text/x-jsrender" id="poiEditorTemplate">
-        {^{if selectedItem}}
+        {^{if selectedPoint}}
         {^{for selectedPoint}}
         <form>
-            <h3>Manage point</h3>
-            <div class="row">
-              <div class="large-12 columns">
-                <input type="text" style="border:0px solid black;box-shadow:none;font-size:larger;font-weight:bold" placeholder="Name your point" data-link="record.name">
+            <fieldset>
+              <legend>Title</legend>
+              <div class="row">
+                <div class="large-12 columns">
+                  <input type="text" class="input-edit" placeholder="Name your point" data-link="record.name">
+                </div>
               </div>
-            </div>
+            </fieldset>
             <fieldset>
                 <legend>Taxonomy</legend>
                 <div class="row">
@@ -149,7 +189,6 @@
                 </div>
             </fieldset>
 
-
             <fieldset>
                 <legend>Location</legend>
             <div class="row">
@@ -163,24 +202,53 @@
                   </div>
             </div>
             </fieldset>
-        <div class="row">
-                <div class="large-4 columns">
-                    <a href="#" class="button prefix success save-command">Save</a>
+            <div class="row">
+                {^{if save}}
+                <div class="large-6 columns">
+                    <a href="#" class="button prefix save-command">Save</a>
                 </div>
-                <div class="large-4 columns">
+                {{/if}}
+                {^{if isNew}}
+                <div class="large-6 columns">
+                  <a href="#" class="button prefix alert cancel-command">Cancel</a>
+                </div>
+                {{else}}
+                <div class="large-6 columns">
                   <a href="#" class="button prefix alert">Remove</a>
                 </div>
-                <div class="large-4 columns">
-
-                </div>
-        </div>
+                {{/if}}
+            </div>
         </form>
         {{/for}}
         {{/if}}
     </script>
-	<script>$(document).foundation();</script>
+  <link href="awesomefont/css/font-awesome.css" rel="stylesheet" />
+  <script src="js/vendor/jquery.js"></script>
+  <script src="js/vendor/jsrender.js"></script>
+  <script src="js/vendor/jquery.observable.js"></script>
+  <script src="js/vendor/jquery.views.js"></script>
+  <script src="js/jaydata/datajs-1.0.3-patched.js"></script>
+  <script src="js/jaydata/jaydata.js"></script>
+  <script src="js/foundation.min.js"></script>
+  <script src="js/vendor/iscroll.js"></script>
+<link href="leafletjs/leaflet.css" rel="stylesheet" /><!--!!!-->
+<link href="leafletjs/leaflet.awesome-markers.css" rel="stylesheet" />
+<link href="leafletjs/cluster.css" rel="stylesheet" />
+<script src="leafletjs/leaflet.js"></script><!--!!!-->
+<script src="leafletjs/leaflet.awesome-markers.js"></script>
+<script src="leafletjs/BingLayer.js"></script>
+<script src="leafletjs/cluster.js"></script>
+
+
+  <script src="js/ui.js"></script>
     <script src="js/hello.min.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
+   <script>
+       $(document).foundation().foundation('reveal', {
+           closeOnBackgroundClick: false
+       });
+
+   </script>
 </body>
 </html>
