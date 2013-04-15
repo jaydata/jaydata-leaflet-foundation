@@ -161,7 +161,7 @@ body {
 	display: inline-block; width: 40px; height: 40px; padding: 11px 0 0;
 	position: absolute; right: 15px; top: 15px;
 	font-size: 23px; text-align: center;
-	z-index: 500;
+	z-index: 4000;
 	border-radius: 100%;
 }
 

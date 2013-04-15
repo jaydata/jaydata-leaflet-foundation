@@ -112,6 +112,8 @@ function initUI() {
 
             if (window.innerWidth < 480) {
                 document.getElementById("map").style.width = window.innerWidth + "px";
+            } else if (!$(".left-column").hasClass("open")) {
+                document.getElementById("map").style.width = window.innerWidth + "px";
             }
         } else {
             document.getElementById("row-full").style.height = window.innerHeight + "px";
