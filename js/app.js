@@ -192,12 +192,11 @@ var pointApi = {
     },
     createMarkerFromPoint: function createMarkerFromPoint(p) {
         var marker = L.marker([p.record.lat, p.record.lon], {
-            draggable: true,
-            icon: pointApi.getPointIcon(p)
+            draggable: true
+            //,icon: pointApi.getPointIcon(p)
         });
 
-        marker.addTo(visiblePins)
-              .on('touchstart', function(e) {
+        marker.on('touchstart', function(e) {
                   console.dir("touch");
               })
               .on('click', function (e) {
@@ -267,6 +266,7 @@ var pointApi = {
                        });
             }
         }
+        return marker;
     }
 
 }
@@ -275,12 +275,14 @@ var pointApi = {
 $([app.items]).bind("arrayChange", function (evt, o) {
     switch (o.change) {
         case "insert":
+            var markers = [];
             o.items.forEach(function (p) {
                 //if (!app.pointIndex[p.record_id]) {
                     app.pointIndex[p.record_id] = p;
-                    pointApi.createMarkerFromPoint(p);
+                    markers.push(pointApi.createMarkerFromPoint(p));
                 //}
             });
+            visiblePins.addLayers(markers);
             break;
         case "remove":
             o.items.forEach(function (item) {
@@ -313,6 +315,7 @@ $.views.helpers({
 
 var lmap;
 var visiblePins = new L.MarkerClusterGroup();
+//var visiblePins = new L.LayerGroup();
 var previousValue = '';
 
 $.link.mainTemplate('#row-full', app)
@@ -320,8 +323,11 @@ $.link.mainTemplate('#row-full', app)
          var selectedItem = $.view(this);
          app.selectItem(selectedItem);
          var marker = $.view(this).data.getMarker();
-         marker.openPopup();
-         lmap.panTo(marker.getLatLng());
+         
+         visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
+             marker.openPopup();
+         });
+         //lmap.panTo(marker.getLatLng());
      })
      .on("click", ".edit-command", function () {
          app.showEditor();
@@ -336,7 +342,7 @@ $.link.mainTemplate('#row-full', app)
              previousValue = this.value;
              var search = this.value;
              if (search.length > 2) {
-                 doSearch("new");
+                 doSearch("new", 1000);
              };
          }
      })
@@ -406,8 +412,8 @@ var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy'
 lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
 var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
 app.pins = visiblePins;
-visiblePins.addTo(lmap);
 lmap.addLayer(bing);
+visiblePins.addTo(lmap);
 
 
 initUI();
@@ -426,8 +432,28 @@ function defaultSearch(type) {
     };
 }
 
+var pendingOperations = {};
+
+function cancellAll() {
+    Object.keys(pendingOperations).forEach(function (t) {
+        console.log("clearing tout:", t);
+        delete pendingOperations[t];
+        window.clearTimeout(t);
+    });
+}
 function doSearch(type, wait) {
-    search(defaultSearch(type));
+    console.log("calling do search", wait);
+    cancellAll();
+    if (wait) {
+        var t = window.setTimeout(function () {
+            delete pendingOperations[t];
+            search(defaultSearch(type));
+        }, wait);
+        pendingOperations[t] = true;
+    } else {
+        search(defaultSearch(type));
+    }
+    
 }
 navigator.geolocation.getCurrentPosition(function (o) {
     //lmap.setView([o.coords.latitude, o.coords.longitude], 15);
@@ -500,8 +526,5 @@ $data
     });
 //	var resultPins;
 
-$(document).on("click", ".popup-bubble", function (e) {
-    alert("!");
-});
-
+lmap.invalidateSize();
 //});

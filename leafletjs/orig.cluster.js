@@ -3,7 +3,7 @@
  Leaflet.markercluster is an open-source JavaScript library for Marker Clustering on leaflet powered maps.
  https://github.com/danzel/Leaflet.markercluster
 */
-(function () {
+(function (window, undefined) {
 
 
     /*
@@ -21,7 +21,7 @@
             zoomToBoundsOnClick: true,
             singleMarkerMode: false,
 
-            disableClusteringAtZoom: null,
+            disableClusteringAtZoom: 20,
 
             // Setting this to false prevents the removal of any clusters outside of the viewpoint, which
             // is the default behaviour for performance reasons.
@@ -362,8 +362,8 @@
 
         //Overrides FeatureGroup.onRemove
         onRemove: function (map) {
-            map.off('zoomend', this._zoomEnd, this);
-            map.off('moveend', this._moveEnd, this);
+            this._map.off('zoomend', this._zoomEnd, this);
+            this._map.off('moveend', this._moveEnd, this);
 
             this._unbindEvents();
 
@@ -849,11 +849,13 @@
                     //If we were in a cluster animation at the time then the opacity and position of our child could be wrong now, so fix it
                     m.setLatLng(m.getLatLng());
                     m.setOpacity(1);
-                } else {
-                    cluster._recursively(bounds, newZoomLevel, 0, function (c) {
-                        c._recursivelyRemoveChildrenFromMap(bounds, previousZoomLevel + 1);
-                    });
+
+                    return;
                 }
+
+                cluster._recursively(bounds, newZoomLevel, 0, function (c) {
+                    c._recursivelyRemoveChildrenFromMap(bounds, previousZoomLevel + 1);
+                });
                 me._animationEnd();
             }, 200);
         },
@@ -947,11 +949,6 @@
             this._group._map.fitBounds(this._bounds);
         },
 
-        getBounds: function () {
-            var bounds = new L.LatLngBounds();
-            bounds.extend(this._bounds);
-            return bounds;
-        },
 
         _updateIcon: function () {
             this._iconNeedsUpdate = true;
