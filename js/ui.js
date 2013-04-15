@@ -7,16 +7,15 @@ function initUI() {
     };
 
     document.body.style.width = window.innerWidth + "px";
-
     //================================================== SET MAP HEIGHT ==================================================//
     if (L.Browser.mobile) {
-        document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
+        //document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
     } else {
         document.getElementById("row-full").style.height = window.innerHeight + "px";
         document.getElementById("wrapper").style.height = window.innerHeight + "px";
     }
     document.getElementById("map").style.height = window.innerHeight + "px";
-
+    
     var maxH = document.querySelectorAll(".max-height-scroll");
     for (var i = 0; i < maxH.length; i++) {
         maxH[i].style.maxHeight = window.innerHeight + "px";

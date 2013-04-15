@@ -39,23 +39,45 @@ function search(options) {
 
     $.extend(query, {
         q: options.q,
-        limit: options.limit || 20,
+        limit: options.limit || 100,
         fuzzy: options.fuzzy || 0,
-        offset: options.offset || 0
+        start: options.start || 0
     });
 
 
     url = "http://hyperlocal.redth.info/search?" + getAsQueryString(query);
-    //url = "http://omniplaces.com/query_rewriter_m1?" + getAsQueryString(query);
-    return new $.Deferred(function (newDefer) {
-        $.getJSON(url, newDefer.resolve);
-    });
 
+    if (options.app) {
+        var app = options.app;
+        $.getJSON(url, function (x) {
+            console.log(x);
+
+            app.removeInvisiblePoints();
+
+            x.results.forEach(function (p) {
+                if (!app.pointIndex[p.record_id]) {
+                    $.observable(app.items).insert(0, p);
+                } else {
+                    console.log("not adding:" + p.record_id);
+                }
+            });
+
+            console.log(x.limit, x.results_found);
+            if (!options.keepItems && (options.app.items.length < x.results_found) &&
+                (options.maxItems > options.app.items.length) && (options.app.items.length < 1000)) {
+                var newOpts = $.extend({}, options);
+                newOpts.limit = 100;
+                newOpts.start = options.app.items.length;
+                newOpts.keepItems = true;
+                search(newOpts);
+            }
+        });
+    } else {
+        return new $.Deferred(function (newDefer) {
+            $.getJSON(url, newDefer.resolve);
+        });
+    }
 }
-
-
-
-
 
 $.templates({
     poiTemplate: '#poiTemplate',
@@ -67,7 +89,23 @@ $.templates({
 
 
 var app = {
-    pins: visiblePins,
+    pins: null,
+    removeInvisiblePoints: function () {
+        var bounds = lmap.getBounds();
+        var itemsToRemove = [];
+        app.items.forEach(function (item, idx) {
+            if (!bounds.contains([item.record.lat, item.record.lon])) {
+                itemsToRemove.push(idx);
+            }
+        });
+        itemsToRemove.reverse();
+        itemsToRemove.forEach(function (idx) {
+            console.log("removing", idx);
+            $.observable(app.items).remove(idx);
+        });
+    },
+    pointIndex: {},
+    query: "Burg",
     selectedItem: null,
     selectedPoint: null,
     newAddress: null,
@@ -79,7 +117,14 @@ var app = {
         $.observable(app).setProperty("selectedItem", selectedItem);
         app.selectPoint(selectedItem.data);
     },
-    items: []
+    items: [],
+    showEditor: function () {
+        showRightPanel();
+    },
+    hideEditor: function () {
+        hideRightPanel();
+    }
+
 }
 
 
@@ -132,10 +177,12 @@ var pointApi = {
               })
               .on('drag', function (e) {
                   var latlng = e.target.getLatLng();
-                  $.observable(app).setProperty("selectedPoint.record.lat", latlng.lat);
-                  $.observable(app).setProperty("selectedPoint.record.lon", latlng.lng);
+                  $.observable(app).setProperty({
+                      "selectedPoint.record.lat": latlng.lat,
+                      "selectedPoint.record.lon": latlng.lng
+                  });
               })
-             .on('dragend', function (e) {  
+              .on('dragend', function (e) {  
                  //g.latlon.coordinates = [e.target._latlng.lng, e.target._latlng.lat];
                  //g.latlon = g.latlon;
                  //resetProps(g);
@@ -148,41 +195,66 @@ var pointApi = {
         var popup = $('#popupTemplate').render(p);
         marker.bindPopup(popup);
 
+        //$.observable(p).observe("record.name", function () {
+        //    marker.bindPopup($('#popupTemplate').render(p));
+        //});
         p.getMarker = function () { return marker };
 
         p.removeFromMap = function () {
             visiblePins.removeLayer(marker);
         }
+
+        p.save = function () {
+            var self = this;
+            var data = {};
+            Object.keys(self.record).forEach(function (key) {
+                if (key == 'lat' || key == 'lon') {
+                    data[key] = self.record[key];
+                } else {
+                    data[key] = encodeURIComponent(self.record[key]);
+                }
+            })
+            if (self.isNew) {
+                return service.create(data)
+                       .then(function () {
+                           $.observable(self).setProperty("isNew", false);
+                           p.getMarker().setIcon(pointApi.getPointIcon(p));
+                       });
+            } else {
+                return service.update(data)
+                       .then(function () {
+                           p.getMarker().setIcon(pointApi.getPointIcon(p));
+                       });
+            }
+        }
     }
 
 }
+
 
 $([app.items]).bind("arrayChange", function (evt, o) {
     switch (o.change) {
         case "insert":
             o.items.forEach(function (p) {
-                p.save = function () {
-                    var self = this;
-                    if (self.isNew) {
-                        return service.create(self.record)
-                               .then(function () {
-                                   $.observable(self).setProperty("isNew", false);
-                                   p.getMarker().setIcon(pointApi.getPointIcon(p));
-                                });
-                    } else {
-                        return service.update(self.record)
-                               .then(function () {
-                                   p.getMarker().setIcon(pointApi.getPointIcon(p));
-                               });
-                    }
+                //if (!app.pointIndex[p.record_id]) {
+                    app.pointIndex[p.record_id] = p;
+                    pointApi.createMarkerFromPoint(p);
+                //}
+            });
+            break;
+        case "remove":
+            o.items.forEach(function (item) {
+                delete app.pointIndex[item.record_id];
+                if (item.removeFromMap) {
+                    item.removeFromMap();
+                } else {
+                    console.dir("!!!");
                 }
-                pointApi.createMarkerFromPoint(p);
             });
             break;
         default:
-            o.items.forEach(function (item) {
-                item.removeFromMap();
-            });
+            alert("!");
+            throw "unknown";
     };
 });
 
@@ -190,12 +262,13 @@ $([app.items]).bind("arrayChange", function (evt, o) {
 
 $.views.helpers({
     bgColor: function (selectedPoint) {
-        return (selectedPoint && selectedPoint === this.data) ? "#4EC1F7" : (this.getIndex() % 2 ? "#fdfdfe" : "#efeff2");
+        return (selectedPoint && selectedPoint === this.data) ? "#4EC1F7" : "#ffffff";
     },
     app: app
 })
 
 var lmap;
+var visiblePins = new L.MarkerClusterGroup();
 
 $.link.mainTemplate('#row-full', app)
      .on("click", "li", function () {
@@ -206,7 +279,11 @@ $.link.mainTemplate('#row-full', app)
          lmap.panTo(marker.getLatLng());
      })
      .on("click", ".edit-command", function () {
-         showRightPanel();
+         app.showEditor();
+
+         //visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
+         //    app.showEditor();
+         //});
      })
      .on("keyup", "#searchInput", function () {
          if (!(window.event.altKey || window.event.shiftKey || window.event.ctrlKey)) {
@@ -216,25 +293,26 @@ $.link.mainTemplate('#row-full', app)
              };
          }
      })
-    .on("click", ".save-command", function () {
-        ensureAuthenticate();
-        if (app.selectedPoint.save) {
-            app.selectedPoint.save().then(function() {
-                hideRightPanel();
-            });
-        }
+     .on("click", ".save-command", function () {
+         ensureAuthenticate()
+             .then(function (n) {
+                 app.selectedPoint.save().then(function () {
+                     app.hideEditor();
+                 });
+             })
+             .fail(function () { alert('error') });
         //ensureAuthenticate().then(function () {
         //    alert("!");
         //});
     })
-    .on("click", ".cancel-command", function () {
+     .on("click", ".cancel-command", function () {
         $('#addNewPoint').foundation('reveal', 'close');
         //console.log(
         $.observable(app.items).remove(app.items.indexOf(app.selectedPoint));
         hideRightPanel();
         app.selectPoint(null);
     })
-    .on("click", ".ok-command", function () {
+     .on("click", ".ok-command", function () {
         $('#addNewPoint').foundation('reveal', 'close');
         showRightPanel();
     });
@@ -245,30 +323,30 @@ initUI();
 var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
 lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
 var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
-var visiblePins = L.layerGroup().addTo(lmap);
+app.pins = visiblePins;
+visiblePins.addTo(lmap);
 lmap.addLayer(bing);
 
 
 
 
-function doSearch(q) {
+function doSearch() {
     search({
         bounds: lmap.getBounds(),
         limit: 20,
         offset: 0,
         fuzzy: 0,
-        q: q,
-    }).then(function (x) {
-        console.log(x.results);
-        $.observable(app.items).remove(0, app.items.length);
-        $.observable(app.items).insert(0, x.results);
+        q: $('#searchInput').val(),
+        app: app,
+        map: lmap,
+        maxItems: 120
     });
 }
 navigator.geolocation.getCurrentPosition(function (o) {
-    lmap.setView([o.coords.latitude, o.coords.longitude], 15);
-    ///lmap.setView([40.72121341440144, -74.00126159191132], 15);
+    //lmap.setView([o.coords.latitude, o.coords.longitude], 15);
+    lmap.setView([40.72121341440144, -74.00126159191132], 15);
     console.log("position:", o);
-    doSearch('alma');
+    doSearch();
 });
 
 
@@ -281,7 +359,7 @@ navigator.geolocation.getCurrentPosition(function (o) {
 //$data.initService("http://192.168.10.100:6789/svc").then(function (svc, f, t) {
 //    service = svc;
 //});
-
+initAuth();
 $data
     .initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
     .then(function (mydatabase, factory, type) {
@@ -322,9 +400,14 @@ $data
                 });
             });
         });
-
         lmap.on('dblclick', function (e) {
             window.clearTimeout(timer);
+        });
+        lmap.on('dragend', function (e) {
+            doSearch();
+        });
+        lmap.on('zoomend', function (e) {
+            doSearch();
         });
 
     });
