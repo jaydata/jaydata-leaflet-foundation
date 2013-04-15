@@ -372,8 +372,22 @@ $.link.mainTemplate('#row-full', app)
         app.selectPoint(null);
     })
      .on("click", ".ok-command", function () {
-        $('#addNewPoint').foundation('reveal', 'close');
-        showRightPanel();
+         $('#addNewPoint').foundation('reveal', 'close');
+         var self = this;
+
+         window.setTimeout(function () {
+             ensureAuthenticate()
+                 .then(function (n) {
+                     showRightPanel();
+                 })
+                 .fail(function () {
+                     $.observable(app.items).remove(app.items.indexOf(app.selectedPoint));
+                     hideRightPanel();
+                     app.selectPoint(null);
+                 });
+
+         }, 500);
+         
     });
 
 
