@@ -137,7 +137,7 @@ var app = {
     selectPoint: function (selectedPoint) {
         if (selectedPoint !== app.selectedPoint) {
             $.observable(app).setProperty("selectedPoint", selectedPoint);
-        } else {
+        } else if (selectedPoint) {
             app.showEditor();
         }
 
