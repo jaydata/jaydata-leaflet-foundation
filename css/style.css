@@ -39,6 +39,10 @@ body {
 	z-index: 4500 !important;
 }
 
+.reveal-modal-bg {
+	z-index: 3200 !important;
+}
+
 /*================================================================= RIGHT COLUMN =================================================================*/
 .right-panel {
 	opacity: 1;
@@ -173,7 +177,8 @@ body {
 		height: 250px;
 	}
 
-	.map { height: 200px; width: 100%; }
+	.large-9 { overflow: hidden; }
+	.map { min-height: 200px; width: 100%; }
 
 	#wrapper {
 		max-height: 180px;
@@ -207,6 +212,10 @@ body {
 @media only screen and (min-width: 769px) {
 	.iscroll-wrapper {
 		min-height: 750px !important;
+	}
+
+	.row-full .left-column form, .row-full .left-column .row.relative, .row-full .left-column .large-12 {
+		height: 100%;
 	}
 }
 
