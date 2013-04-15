@@ -12,13 +12,32 @@ function initUI() {
         var left = $(".left-column");
         left.toggleClass("open");
 
-        if (left.hasClass("open")) {
-            document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
-            setTimeout(function () {
-                initListIScroll();
-            }, 350);
+        var windowWidth = window.innerWidth,
+            windowHeight = window.innerHeight;
+
+        if (windowWidth < 480) {
+            if (left.hasClass("open")) {
+                document.getElementById("map").style.height = (windowHeight - 250) + "px";
+                setTimeout(function () {
+                    initListIScroll();
+                }, 350);
+            } else {
+                document.getElementById("map").style.height = windowHeight + "px";
+            }
+        } else if (windowWidth >= 480 || windowWidth <= 768) {
+            if (left.hasClass("open")) {
+                setTimeout(function () {
+                    document.getElementById("map").style.width = (windowWidth - $(".left-column").width()) + "px";
+                    $(".large-9")[0].style.width = (windowWidth - $(".left-column").width() - 1) + "px";
+                    document.getElementById("wrapper").style.height = (window.innerHeight - 67) + "px";
+                    $(".row-full .left-column")[0].style.height = window.innerHeight  + "px";
+                    initListIScroll();
+                }, 500);
+            } else {
+                document.getElementById("map").style.width = windowWidth + "px";
+            }
         } else {
-            document.getElementById("map").style.height = window.innerHeight + "px";
+            document.getElementById("map").style.width = (windowWidth - $(".left-column").width()) + "px";
         }
     }
 
@@ -48,7 +67,7 @@ function initUI() {
     var resizeTrigger;
     window.onresize = function(event) {
         clearTimeout(resizeTrigger);
-        resizeTrigger = setTimeout(resizeFunction, 100);
+        resizeTrigger = setTimeout(resizeFunction, 500);
     }
     function resizeFunction() {
         resizeUI();
@@ -89,11 +108,16 @@ function initUI() {
 
         if (L.Browser.mobile) {
             //document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
+
+            if (window.innerWidth < 480) {
+                document.getElementById("map").style.width = window.innerWidth + "px";
+            }
         } else {
             document.getElementById("row-full").style.height = window.innerHeight + "px";
             document.getElementById("wrapper").style.height = (window.innerHeight - 67) + "px";
         }
         document.getElementById("map").style.height = window.innerHeight + "px";
+        $(".large-9")[0].style.width = (window.innerWidth - $(".left-column").width() - 1) + "px";
 
         var maxH = document.querySelectorAll(".max-height-scroll");
         for (var i = 0; i < maxH.length; i++) {
