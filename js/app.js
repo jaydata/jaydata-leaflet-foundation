@@ -356,7 +356,6 @@ $.link.mainTemplate('#row-full', app)
         showRightPanel();
     });
 
-initUI();
 
 //http://omniplaces.com/query_rewriter_m1?&lb_lng=19.004367656103568&lb_lat=47.502074825082246&rt_lng=19.139980143896537&rt_lat=47.52810322204093&q=star&limit=10&confirmed=false&callback=YUI.Env.JSONP.yui_3_4_0_4_1365747286608_6
 var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
@@ -366,6 +365,8 @@ app.pins = visiblePins;
 visiblePins.addTo(lmap);
 lmap.addLayer(bing);
 
+
+initUI();
 
 function defaultSearch(type) {
     return {
