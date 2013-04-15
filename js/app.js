@@ -236,6 +236,14 @@ var pointApi = {
             visiblePins.removeLayer(marker);
         }
 
+        p.remove = function () {
+            var self = this;
+            return service.delete(self.record).then(function () {
+                var idx = app.items.indexOf(self);
+                $.observable(app.items).remove(idx);
+            });
+        }
+
         p.save = function () {
             var self = this;
             var data = {};
@@ -340,6 +348,18 @@ $.link.mainTemplate('#row-full', app)
                  });
              })
              .fail(function () { alert('error') });
+        //ensureAuthenticate().then(function () {
+        //    alert("!");
+        //});
+     })
+    .on("click", ".remove-command", function () {
+        ensureAuthenticate()
+            .then(function (n) {
+                app.selectedPoint.remove().then(function () {
+                    app.hideEditor();
+                });
+            })
+            .fail(function () { alert('error') });
         //ensureAuthenticate().then(function () {
         //    alert("!");
         //});
