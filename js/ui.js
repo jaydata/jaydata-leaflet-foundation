@@ -5,8 +5,6 @@ function initUI() {
         rightScroll: null
     };
 
-    resizeUI();
-
     //================================================== FUNCTIONS ==================================================//
     window.toggleMap = function toggleMap() {
         var left = $(".left-column");
@@ -35,6 +33,7 @@ function initUI() {
                 }, 500);
             } else {
                 document.getElementById("map").style.width = windowWidth + "px";
+                $(".large-9")[0].style.width = windowWidth + "px";
             }
         } else {
             document.getElementById("map").style.width = (windowWidth - $(".left-column").width()) + "px";
@@ -66,9 +65,16 @@ function initUI() {
     }
 
     var resizeTrigger;
-    window.onresize = function(event) {
-        clearTimeout(resizeTrigger);
-        resizeTrigger = setTimeout(resizeFunction, 500);
+    if (window.orientation === undefined) {
+        window.onresize = function (event) {
+            clearTimeout(resizeTrigger);
+            resizeTrigger = setTimeout(resizeFunction, 500);
+        }
+    } else {
+        window.onorientationchange = function (event) {
+            clearTimeout(resizeTrigger);
+            resizeTrigger = setTimeout(resizeFunction, 500);
+        }
     }
     function resizeFunction() {
         resizeUI();
@@ -104,33 +110,35 @@ function initUI() {
         });
     }
 
-    function resizeUI() {
-        document.body.style.width = window.innerWidth + "px";
-
-        if (L.Browser.mobile) {
-            //document.getElementById("map").style.height = (window.innerHeight - 250) + "px";
-
-            if (window.innerWidth < 480) {
-                document.getElementById("map").style.width = window.innerWidth + "px";
-            } else if (!$(".left-column").hasClass("open")) {
-                document.getElementById("map").style.width = window.innerWidth + "px";
-            }
-        } else {
-            document.getElementById("row-full").style.height = window.innerHeight + "px";
-            document.getElementById("wrapper").style.height = (window.innerHeight - 67) + "px";
-        }
-        document.getElementById("map").style.height = window.innerHeight + "px";
-        $(".large-9")[0].style.width = (window.innerWidth - $(".left-column").width() - 1) + "px";
-
-        var maxH = document.querySelectorAll(".max-height-scroll");
-        for (var i = 0; i < maxH.length; i++) {
-            maxH[i].style.maxHeight = window.innerHeight + "px";
-        }
-        lmap.invalidateSize();
-    }
+    resizeUI();
 
     document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
     initListIScroll();
     //document.addEventListener('DOMContentLoaded', function () { setTimeout(initListIScroll, 1500); }, false);
 };
+
+function resizeUI() {
+    document.body.style.width = window.innerWidth + "px";
+
+    if (L.Browser.mobile) {
+        if (window.innerWidth < 480) {
+            document.getElementById("map").style.width = window.innerWidth + "px";
+        } else if (!$(".left-column").hasClass("open")) {
+            document.getElementById("map").style.width = window.innerWidth + "px";
+        }
+    } else {
+        document.getElementById("row-full").style.height = window.innerHeight + "px";
+        document.getElementById("wrapper").style.height = (window.innerHeight - 67) + "px";
+    }
+    if (window.innerWidth < 480) {
+        $(".left-column")[0].style.maxHeight = 250 + "px";
+    }
+    document.getElementById("map").style.height = window.innerHeight + "px";
+    $(".large-9")[0].style.width = (window.innerWidth - $(".left-column").width() - 1) + "px";
+
+    var maxH = document.querySelectorAll(".max-height-scroll");
+    for (var i = 0; i < maxH.length; i++) {
+        maxH[i].style.maxHeight = window.innerHeight + "px";
+    }
+}
 
