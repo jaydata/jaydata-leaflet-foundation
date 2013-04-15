@@ -22,6 +22,8 @@ body {
 .absolute { position: absolute; }
 .reset-padding { padding: 0 !important; }
 
+.color-gray { color: gray; }
+
 .box-shadow {
 	-webkit-box-shadow: 0 0 15px #808080;
 	-moz-box-shadow: 0 0 15px #808080;
@@ -130,6 +132,11 @@ body {
 
 .foundicon-search.absolute {
 	top: 8px; left: 8px;
+}
+
+.abs-right {
+	position: absolute;
+	top: 8px; right: 8px;
 }
 
 .input-search {
