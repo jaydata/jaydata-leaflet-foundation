@@ -50,23 +50,32 @@ function search(options) {
     if (options.app) {
         var app = options.app;
         $.getJSON(url, function (x) {
-            console.log(x);
-
-            app.removeInvisiblePoints();
-
+            //console.log(x);
+            console.log("result for: " + options.q);
+            if ($('#searchInput').val() != options.q) {
+                console.log("@@@@", "query outdated");
+                return;
+            }
+            if (options.type === "new") {
+                app.removeAllPoints();
+            } else {
+                app.removeInvisiblePoints();
+            }
+            
             x.results.forEach(function (p) {
                 if (!app.pointIndex[p.record_id]) {
-                    $.observable(app.items).insert(0, p);
+                    $.observable(app.items).insert(app.items.length, p);
                 } else {
-                    console.log("not adding:" + p.record_id);
+                    //console.log("not adding:" + p.record_id);
                 }
             });
 
-            console.log(x.limit, x.results_found);
+            //console.log(x.limit, x.results_found);
             if (!options.keepItems && (options.app.items.length < x.results_found) &&
                 (options.maxItems > options.app.items.length) && (options.app.items.length < 1000)) {
                 var newOpts = $.extend({}, options);
                 newOpts.limit = 100;
+                newOpts.type = "followup";
                 newOpts.start = options.app.items.length;
                 newOpts.keepItems = true;
                 search(newOpts);
@@ -79,12 +88,25 @@ function search(options) {
     }
 }
 
+
+var searchQ = [];
+
+
+search.enqueue = function (s, timeout) {
+    if (!timeout) {
+
+    } else {
+
+    }
+}
+
 $.templates({
     poiTemplate: '#poiTemplate',
     poiListTemplate: '#poiListTemplate',
     poiEditorTemplate: '#poiEditorTemplate',
     mainTemplate: '#mainTemplate',
-    addNewDialogTemplate: '#addNewDialogTemplate'
+    addNewDialogTemplate: '#addNewDialogTemplate',
+    popupTemplate: '#popupTemplate'
 });
 
 
@@ -100,9 +122,12 @@ var app = {
         });
         itemsToRemove.reverse();
         itemsToRemove.forEach(function (idx) {
-            console.log("removing", idx);
+            //console.log("removing", idx);
             $.observable(app.items).remove(idx);
         });
+    },
+    removeAllPoints: function() {
+        $.observable(app.items).remove(0, app.items.length);
     },
     pointIndex: {},
     query: "Burg",
@@ -110,7 +135,11 @@ var app = {
     selectedPoint: null,
     newAddress: null,
     selectPoint: function (selectedPoint) {
-        $.observable(app).setProperty("selectedPoint", selectedPoint);
+        if (selectedPoint !== app.selectedPoint) {
+            $.observable(app).setProperty("selectedPoint", selectedPoint);
+        } else if (selectedPoint) {
+            app.showEditor();
+        }
 
     },
     selectItem: function(selectedItem) {
@@ -172,8 +201,7 @@ var pointApi = {
                   console.dir("touch");
               })
               .on('click', function (e) {
-                  //toggleRightPanel();
-                  $.observable(app).setProperty("selectedPoint", p);
+                  app.selectPoint(p);
               })
               .on('drag', function (e) {
                   var latlng = e.target.getLatLng();
@@ -192,8 +220,12 @@ var pointApi = {
                  //    });
              })
 
-        var popup = $('#popupTemplate').render(p);
-        marker.bindPopup(popup);
+        var d = $('<div></div>');
+        $.link.popupTemplate(d, p).on("click", "div", function() {
+            app.showEditor();
+        });
+        //var popup = $('#popupTemplate').render(p);
+        marker.bindPopup(d[0]);
 
         //$.observable(p).observe("record.name", function () {
         //    marker.bindPopup($('#popupTemplate').render(p));
@@ -202,6 +234,14 @@ var pointApi = {
 
         p.removeFromMap = function () {
             visiblePins.removeLayer(marker);
+        }
+
+        p.remove = function () {
+            var self = this;
+            return service.delete(self.record).then(function () {
+                var idx = app.items.indexOf(self);
+                $.observable(app.items).remove(idx);
+            });
         }
 
         p.save = function () {
@@ -250,6 +290,10 @@ $([app.items]).bind("arrayChange", function (evt, o) {
                 } else {
                     console.dir("!!!");
                 }
+                if (item === app.selectedPoint) {
+                    app.selectPoint(null);
+                    app.hideEditor();
+                }
             });
             break;
         default:
@@ -269,6 +313,7 @@ $.views.helpers({
 
 var lmap;
 var visiblePins = new L.MarkerClusterGroup();
+var previousValue = '';
 
 $.link.mainTemplate('#row-full', app)
      .on("click", "li", function () {
@@ -280,16 +325,18 @@ $.link.mainTemplate('#row-full', app)
      })
      .on("click", ".edit-command", function () {
          app.showEditor();
-
-         //visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
-         //    app.showEditor();
-         //});
+         var marker = $.view(this).data.getMarker();
+         marker.openPopup();
+         visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
+             app.showEditor();
+         });
      })
      .on("keyup", "#searchInput", function () {
-         if (!(window.event.altKey || window.event.shiftKey || window.event.ctrlKey)) {
+         if (previousValue != this.value) {
+             previousValue = this.value;
              var search = this.value;
              if (search.length > 2) {
-                 doSearch(search);
+                 doSearch("new");
              };
          }
      })
@@ -301,6 +348,18 @@ $.link.mainTemplate('#row-full', app)
                  });
              })
              .fail(function () { alert('error') });
+        //ensureAuthenticate().then(function () {
+        //    alert("!");
+        //});
+     })
+    .on("click", ".remove-command", function () {
+        ensureAuthenticate()
+            .then(function (n) {
+                app.selectedPoint.remove().then(function () {
+                    app.hideEditor();
+                });
+            })
+            .fail(function () { alert('error') });
         //ensureAuthenticate().then(function () {
         //    alert("!");
         //});
@@ -317,7 +376,6 @@ $.link.mainTemplate('#row-full', app)
         showRightPanel();
     });
 
-initUI();
 
 //http://omniplaces.com/query_rewriter_m1?&lb_lng=19.004367656103568&lb_lat=47.502074825082246&rt_lng=19.139980143896537&rt_lat=47.52810322204093&q=star&limit=10&confirmed=false&callback=YUI.Env.JSONP.yui_3_4_0_4_1365747286608_6
 var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
@@ -328,19 +386,24 @@ visiblePins.addTo(lmap);
 lmap.addLayer(bing);
 
 
+initUI();
 
-
-function doSearch() {
-    search({
+function defaultSearch(type) {
+    return {
         bounds: lmap.getBounds(),
         limit: 20,
+        type: type || 'new',
         offset: 0,
         fuzzy: 0,
         q: $('#searchInput').val(),
         app: app,
         map: lmap,
         maxItems: 120
-    });
+    };
+}
+
+function doSearch(type, wait) {
+    search(defaultSearch(type));
 }
 navigator.geolocation.getCurrentPosition(function (o) {
     //lmap.setView([o.coords.latitude, o.coords.longitude], 15);
@@ -388,7 +451,7 @@ $data
             hideRightPanel();
             $('#addNewPoint').foundation('reveal', 'open');
             mydatabase.reverse(e.latlng).then(function (r) {
-                console.dir(r.Results[0]);
+                //console.dir(r.Results[0]);
                 var theAddress = r.Results[0].Address;
                 $.observable(app).setProperty("newAddress", r.Results[0]);
                 $.observable(app).setProperty({
@@ -404,14 +467,17 @@ $data
             window.clearTimeout(timer);
         });
         lmap.on('dragend', function (e) {
-            doSearch();
+            doSearch("reposition");
         });
         lmap.on('zoomend', function (e) {
-            doSearch();
+            doSearch("reposition");
         });
 
     });
 //	var resultPins;
 
+$(document).on("click", ".popup-bubble", function (e) {
+    alert("!");
+});
 
 //});

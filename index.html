@@ -126,7 +126,9 @@
     <script type="text/x-jsrender" id="poiTemplate">
         <li data-link="css-background-color{:~bgColor(~app.selectedPoint)}" >
             {^{> record.name}} 
+            {^{if ~app.selectedPoint === #data}}
             <a href="#" class="edit-command button small" style="float:right">Edit</a>
+            {{/if}}
         </li>
     </script>
 
@@ -137,8 +139,8 @@
     </script>
 
     <script type="text/x-jsrender" id="popupTemplate">
-        <div>
-            <div>{^{> record.name}}</div>
+        <div >
+            <div class="popup-bubble">{^{> record.name}}</div>
         </div>
     </script>
 
@@ -227,7 +229,7 @@
                 </div>
                 {{else}}
                 <div class="large-6 columns">
-                  <a href="#" class="button prefix alert">Remove</a>
+                  <a href="#" class="button prefix alert remove-command">Remove</a>
                 </div>
                 {{/if}}
             </div>
@@ -236,8 +238,8 @@
         {{/if}}
     </script>
   <link href="awesomefont/css/font-awesome.css" rel="stylesheet" />
-  <!--<script src="js/vendor/jquery2b3.js"></script>-->
-    <script src="js/vendor/jquery.js"></script>
+  <script src="js/vendor/jquery2b3.js"></script>
+    <!--<script src="js/vendor/jquery.js"></script>-->
   <script src="js/vendor/jsrender.js"></script>
   <script src="js/vendor/jquery.observable.js"></script>
   <script src="js/vendor/jquery.views.js"></script>

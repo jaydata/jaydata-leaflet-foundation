@@ -1874,8 +1874,12 @@
 						$(nodesToRemove).remove();
 					}
 					if (!viewToRemove._elCnt) {
-						parentElem.removeChild(prevNode);
-						parentElem.removeChild(nextNode);
+					    parentElem.removeChild(prevNode);
+					    try {
+					        parentElem.removeChild(nextNode);
+					    } catch (e) {
+
+					    }
 					}
 					setArrayChangeLink(viewToRemove);
 					for (bindId in viewToRemove._.bnds) {

@@ -38,6 +38,7 @@ function initUI() {
         } else {
             document.getElementById("map").style.width = (windowWidth - $(".left-column").width()) + "px";
         }
+        lmap.invalidateSize();
     }
 
     window.hideRightPanel = function hideRightPanel() {
@@ -112,7 +113,8 @@ function initUI() {
     resizeUI();
 
     document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
-    document.addEventListener('DOMContentLoaded', function () { setTimeout(initListIScroll(), 1500); }, false);
+    initListIScroll();
+    //document.addEventListener('DOMContentLoaded', function () { setTimeout(initListIScroll, 1500); }, false);
 };
 
 function resizeUI() {
