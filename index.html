@@ -126,7 +126,9 @@
     <script type="text/x-jsrender" id="poiTemplate">
         <li data-link="css-background-color{:~bgColor(~app.selectedPoint)}" >
             {^{> record.name}} 
+            {^{if ~app.selectedPoint === #data}}
             <a href="#" class="edit-command button small" style="float:right">Edit</a>
+            {{/if}}
         </li>
     </script>
 
