@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
-    <title>JayData vs. Leafleft vs. Foundation 4</title>
+    <title>HyperLocal</title>
 
     <link rel="stylesheet" href="css/normalize.css" />
     <link rel="stylesheet" href="css/foundation.css" />
@@ -23,7 +23,7 @@
     <link href="leafletjs/leaflet.css" rel="stylesheet" />
     <link href="leafletjs/leaflet.awesome-markers.css" rel="stylesheet" />
     <link href="leafletjs/cluster.css" rel="stylesheet" />
-
+    <link href="leafletjs/L.Control.Locate.css" rel="stylesheet" />
     <script src="js/vendor/custom.modernizr.js"></script>
 </head>
 <body>
@@ -62,7 +62,7 @@
 		    </div>
 
 		    <div class="box-padding-high box-white right-panel hidden box-shadow">
-	         <i class="foundicon-remove absolute button medium" onclick="hideRightPanel();"></i>
+	         <i class="foundicon-remove absolute button medium close-editor-command"></i>
            <div id="wrapper-right" class="iscroll-wrapper">
               <div id="scroller-right"  class="iscroll-scroller">
                 <div id="poiEditor">
@@ -163,7 +163,11 @@
         <li data-link="css-background-color{:~bgColor(~app.selectedPoint)}" >
             {^{> record.name}} 
             {^{if ~app.selectedPoint === #data}}
-            <a href="#" class="edit-command button small" style="float:right">Edit</a>
+                {^{if ~app.editorVisible}}
+                    <a href="#" class="button small close-editor-command" style="float:right">Close</a>
+                {{else}}
+                    <a href="#" class="edit-command button small" style="float:right">Edit</a>
+                {{/if}}
             {{/if}}
         </li>
     </script>
@@ -289,6 +293,9 @@
     <script src="leafletjs/BingLayer.js"></script>
     <script src="leafletjs/cluster.js"></script>
     <script src="TraceLayer.js"></script>
+    <script src="leafletjs/L.Control.Locate.js"></script>
+
+
     <script src="http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/socket.io/socket.io.js"></script>
 
     <script src="js/ui.js"></script>

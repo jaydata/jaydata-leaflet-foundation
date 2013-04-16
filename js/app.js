@@ -71,7 +71,7 @@ function search(options) {
             });
 
             //console.log(x.limit, x.results_found);
-            if (options.type === "new" && (options.app.items.length < x.results_found)) {
+            if (!L.Browser.mobile && options.type !== "followup" && (options.app.items.length < x.results_found)) {
                 var newOpts = $.extend({}, options);
                 newOpts.limit = 100;
                 newOpts.type = "followup";
@@ -129,7 +129,7 @@ var app = {
         $.observable(app.items).remove(0, app.items.length);
     },
     pointIndex: {},
-    query: "Burg",
+    query: "Hyp",
     selectedItem: null,
     selectedPoint: null,
     newAddress: null,
@@ -146,11 +146,14 @@ var app = {
         app.selectPoint(selectedItem.data);
     },
     items: [],
+    editorVisible: false,
     showEditor: function () {
         showRightPanel();
+        $.observable(app).setProperty("editorVisible", true);
     },
     hideEditor: function () {
         hideRightPanel();
+        $.observable(app).setProperty("editorVisible", false);
     },
 
     error: null,
@@ -173,7 +176,7 @@ var app = {
                                 .save()
                                 .then(function (opResult) {
                                     console.dir(opResult);
-                                    //app.hideEditor();
+                                    app.hideEditor();
                                 })
                                 .fail(function (opResult) {
                                     $.observable(app).setProperty("error", opResult);
@@ -247,8 +250,8 @@ var pointApi = {
     },
     createMarkerFromPoint: function createMarkerFromPoint(p) {
         var marker = L.marker([p.record.lat, p.record.lon], {
-            draggable: true
-            //,icon: pointApi.getPointIcon(p)
+            draggable: true,
+            icon: pointApi.getPointIcon(p)
         });
 
         marker.on('touchstart', function(e) {
@@ -403,7 +406,7 @@ $.link.mainTemplate('#row-full', app)
          var selectedItem = $.view(this);
          app.selectItem(selectedItem);
          var marker = $.view(this).data.getMarker();
-         
+         $('#searchInput').blur();
          visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
              marker.openPopup();
          });
@@ -412,8 +415,8 @@ $.link.mainTemplate('#row-full', app)
      .on("click", ".edit-command", function () {
          app.showEditor();
          var marker = $.view(this).data.getMarker();
-         marker.openPopup();
          visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
+             marker.openPopup();
              app.showEditor();
          });
      })
@@ -425,6 +428,10 @@ $.link.mainTemplate('#row-full', app)
                  doSearch("new", 400);
              };
          }
+     })
+     .on("click", ".close-editor-command", function (e) {
+         app.hideEditor();
+         return false;
      })
      .on("click", ".save-command", function () {
          app.save();
@@ -481,9 +488,11 @@ $.link.mainTemplate('#row-full', app)
 //http://omniplaces.com/query_rewriter_m1?&lb_lng=19.004367656103568&lb_lat=47.502074825082246&rt_lng=19.139980143896537&rt_lat=47.52810322204093&q=star&limit=10&confirmed=false&callback=YUI.Env.JSONP.yui_3_4_0_4_1365747286608_6
 var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
 lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
+lmap.attributionControl.addAttribution("<a href='http://jaydata.org'>JayData ©</a>,<a href='http://jaystack.com'>JayStack ©</a>");
 var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
 var trace = new $data.LeafletTrace();
 trace.addTo(lmap);
+L.control.locate().addTo(lmap);
 //bing.on('aaa', function () {
 //    trace.log("aaa");
 //    console.logLine("loaded!");
@@ -533,6 +542,8 @@ function cancellAll() {
         window.clearTimeout(t);
     });
 }
+$('.leaflet-control-locate .leaflet-bar-part')[0].click();
+
 function doSearch(type, wait) {
     console.log("calling do search", wait);
     cancellAll();
@@ -545,14 +556,15 @@ function doSearch(type, wait) {
     } else {
         search(defaultSearch(type));
     }
-    
 }
-navigator.geolocation.getCurrentPosition(function (o) {
-    //lmap.setView([o.coords.latitude, o.coords.longitude], 15);
-    lmap.setView([40.72121341440144, -74.00126159191132], 15);
-    console.log("position:", o);
-    doSearch();
-});
+
+doSearch("new", 500);
+//navigator.geolocation.getCurrentPosition(function (o) {
+//    lmap.setView([o.coords.latitude, o.coords.longitude], 15);
+//    //lmap.setView([40.72121341440144, -74.00126159191132], 15);
+//    console.log("position:", o);
+//    doSearch();
+//});
 
 
 //initAuth();
@@ -610,10 +622,14 @@ $data
             window.clearTimeout(timer);
         });
         lmap.on('dragend', function (e) {
-            doSearch("reposition", 1000);
+            if (lmap.getZoom() >= 15) {
+                doSearch("reposition", 1000);
+            }
         });
         lmap.on('zoomend', function (e) {
-            doSearch("reposition", 1000);
+            if (lmap.getZoom() >= 15) {
+                doSearch("reposition", 1000);
+            }
         });
 
     });

@@ -1,7 +1,8 @@
 ﻿$data.LeafletTrace = L.Control.extend({
     options: {
         position: 'topright',
-        autoZIndex: true
+        autoZIndex: true,
+        attribution: 'JayData'
     },
 
     initialize: function (options) {
@@ -23,6 +24,9 @@
         return container;
     },
 
+    getAttribution: function() {
+        return "JayData";
+    },
     logLine: function(log) {
         $(this._container).append("<div>" + log + "</div>");
     },
