@@ -10,7 +10,7 @@ var iScrolls = {
     },
     listScroll: null,
     listScrollInit: function () {
-        console.count("listScrollInit");
+        //console.count("listScrollInit");
 
         if (iScrolls.listScroll) {
             //iScrolls.listScroll.destroy();
@@ -22,7 +22,7 @@ var iScrolls = {
     },
     rightScroll: null,
     rightScrollInit: function () {
-        console.count("rightScrollInit");
+        //console.count("rightScrollInit");
 
         if (iScrolls.rightScroll) {
             //iScrolls.rightScroll.destroy();
@@ -73,7 +73,7 @@ window.toggleRightPanel = function toggleRightPanel() {
 }
 
 window.resizeUI = function resizeUI() {
-    console.count("resize UI");
+    //console.count("resize UI");
 
     var mapHtml = document.getElementById("map"),
         left = $('.left-column'),
@@ -106,7 +106,7 @@ window.resizeUI = function resizeUI() {
         mapHtml.style.height = windowHeight + "px";
     }
     else {
-        console.log("desktop");
+        //console.log("desktop");
 
         mapHtml.style.width = (windowWidth - left.width()) + "px";
         mapHtml.style.height = windowHeight + "px";

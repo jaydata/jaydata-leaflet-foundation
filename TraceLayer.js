@@ -23,8 +23,11 @@
         return container;
     },
 
-    log: function(log) {
+    logLine: function(log) {
         $(this._container).append("<div>" + log + "</div>");
+    },
+    log: function(log) {
+        $(this._container).append(log);
     },
     //beginProcess: function (process) {
     //    var indicator = $("<div style='font-size: 8pt'><img src='ajax-loader.gif' /></div>");

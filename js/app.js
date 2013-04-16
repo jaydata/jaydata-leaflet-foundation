@@ -254,16 +254,26 @@ var pointApi = {
                 }
             })
             if (self.isNew) {
-                return service.create(data)
+                return service
+                        .create({ record: data, user: { id: window.logedInUser.id, name: window.logedInUser.name } })
                        .then(function () {
                            $.observable(self).setProperty("isNew", false);
                            p.getMarker().setIcon(pointApi.getPointIcon(p));
                        });
             } else {
-                return service.update(data)
-                       .then(function () {
+                return service
+                        .update({ record: data, user: { id: window.logedInUser.id, name: window.logedInUser.name } })
+                       .then(function (result) {
+                           console.log("update result", result);
                            p.getMarker().setIcon(pointApi.getPointIcon(p));
-                       });
+                       })
+                        .fail(function (result) {
+                            if (result && result.data[0] && result.data[0].response && result.data[0].response.body) {
+                                var res = JSON.parse(result.data[0].response.body);
+                                res = Array.isArray(res) ? res : [res];
+                            }
+                            console.log("update error", result);
+                        });
             }
         }
         return marker;
@@ -415,21 +425,21 @@ var trace = new $data.LeafletTrace();
 trace.addTo(lmap);
 //bing.on('aaa', function () {
 //    trace.log("aaa");
-//    console.log("loaded!");
+//    console.logLine("loaded!");
 //})
 //.on('tileload', function () {
-//    trace.log("tileload");
-//    console.log("loaded!");
+//    trace.log(".");
+//    console.log(".");
 //})
 //.on('tileerror', function () {
 //    trace.log("tileerror");
 //    console.log("loaded!");
 //})
 //.on('load', function (e) {
-//    trace.log("load");
+//    trace.logLine("load");
 //    console.log("loaded!");
 //}).on('loading', function (e) {
-//    trace.log("loading");
+//    trace.logLine("loading");
 //    console.log("loading tiles");
 //});
 app.pins = visiblePins;
@@ -495,7 +505,8 @@ navigator.geolocation.getCurrentPosition(function (o) {
 //});
 initAuth();
 $data
-    .initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
+    //.initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
+    .initService('http://rest.cloudapp.net:6789/svc')
     .then(function (mydatabase, factory, type) {
         var timer;
         service = mydatabase;
