@@ -81,8 +81,6 @@ window.resizeUI = function resizeUI() {
         windowWidth = window.innerWidth,
         windowHeight = window.innerHeight
 
-    document.body.style.width = window.innerWidth + "px";
-
     if (windowWidth < 480) {
         if (left.hasClass("open")) {
             mapHtml.style.height = (windowHeight - 250) + "px";
