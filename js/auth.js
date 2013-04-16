@@ -49,6 +49,11 @@ function logedIn() {
     var fSession = hello.getAuthResponse('facebook');
     if (fSession && !fSession.error) { fLogin = true; }
 
+    if ((gLogin || fLogin) && !window.logedInUser) {
+        hello.logout();
+        return false;
+    }
+
     return gLogin || fLogin;
 }
 function doLogin(network) {
