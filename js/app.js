@@ -158,7 +158,7 @@ var app = {
         $('#opError').foundation('reveal', 'open');
     },
     hideError: function() {
-
+        $('#opError').foundation('reveal', 'close');
     },
     save: function () {
         ensureAuthenticate()
@@ -438,6 +438,9 @@ $.link.mainTemplate('#row-full', app)
         //    alert("!");
         //});
     })
+        .on("click", ".cancel-error-command", function () {
+            app.hideError();
+        })
      .on("click", ".cancel-command", function () {
         $('#addNewPoint').foundation('reveal', 'close');
         //console.log(

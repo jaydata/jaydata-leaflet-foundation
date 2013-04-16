@@ -94,14 +94,28 @@
     <script id="operationErrorTemplate" type="text/x-jsrender">
         <div id="opError" class="reveal-modal medium" style="z-index:1000">
             <a class="close-reveal-modal">&#215;</a>
-            <h3>Modification rejected</h3>
-            {^{if error}}
-                {^{for error}}
-                    {^{for data}}
-                    <div>{{> message}}</div>
-                    {{/for}}
-                {{/for}}
-            {{/if}}
+            <div class="row">
+                <div class="large-12 columns">
+                    <h3>Modification rejected</h3>
+                    {^{if error}}
+                        {^{for error}}
+                            {^{for data}}
+                            <h4>{{> message}}</h4>
+                            {{/for}}
+                        {{/for}}
+                    {{/if}}
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="large-6 columns">
+                    <a href="#" class="button prefix cancel-error-command">OK</a>
+                </div>
+                <div class="large-6 columns">
+                </div>
+            </div>
         </div>
     </script>
 
