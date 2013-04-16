@@ -2534,7 +2534,7 @@ L.TileLayer = L.Class.extend({
 		    center = bounds.getCenter();
 
 		var j, i, point;
-
+		this.fire("aaa");
 		for (j = bounds.min.y; j <= bounds.max.y; j++) {
 			for (i = bounds.min.x; i <= bounds.max.x; i++) {
 				point = new L.Point(i, j);

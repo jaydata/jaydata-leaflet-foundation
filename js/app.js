@@ -71,14 +71,13 @@ function search(options) {
             });
 
             //console.log(x.limit, x.results_found);
-            if (!options.keepItems && (options.app.items.length < x.results_found) &&
-                (options.maxItems > options.app.items.length) && (options.app.items.length < 1000)) {
+            if (options.type === "new" && (options.app.items.length < x.results_found)) {
                 var newOpts = $.extend({}, options);
                 newOpts.limit = 100;
                 newOpts.type = "followup";
                 newOpts.start = options.app.items.length;
                 newOpts.keepItems = true;
-                search(newOpts);
+                search(newOpts, 800);
             }
         });
     } else {
@@ -223,7 +222,6 @@ var pointApi = {
         $.link.popupTemplate(d, p).on("click", "div", function() {
             app.showEditor();
         });
-        //var popup = $('#popupTemplate').render(p);
         marker.bindPopup(d[0]);
 
         //$.observable(p).observe("record.name", function () {
@@ -231,13 +229,15 @@ var pointApi = {
         //});
         p.getMarker = function () { return marker };
 
+
+
         p.removeFromMap = function () {
             visiblePins.removeLayer(marker);
         }
 
         p.remove = function () {
             var self = this;
-            return service.delete(self.record).then(function () {
+            return service.delete(self).then(function () {
                 var idx = app.items.indexOf(self);
                 $.observable(app.items).remove(idx);
             });
@@ -342,7 +342,7 @@ $.link.mainTemplate('#row-full', app)
              previousValue = this.value;
              var search = this.value;
              if (search.length > 2) {
-                 doSearch("new", 1000);
+                 doSearch("new", 400);
              };
          }
      })
@@ -411,6 +411,27 @@ $.link.mainTemplate('#row-full', app)
 var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
 lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
 var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
+var trace = new $data.LeafletTrace();
+trace.addTo(lmap);
+//bing.on('aaa', function () {
+//    trace.log("aaa");
+//    console.log("loaded!");
+//})
+//.on('tileload', function () {
+//    trace.log("tileload");
+//    console.log("loaded!");
+//})
+//.on('tileerror', function () {
+//    trace.log("tileerror");
+//    console.log("loaded!");
+//})
+//.on('load', function (e) {
+//    trace.log("load");
+//    console.log("loaded!");
+//}).on('loading', function (e) {
+//    trace.log("loading");
+//    console.log("loading tiles");
+//});
 app.pins = visiblePins;
 lmap.addLayer(bing);
 visiblePins.addTo(lmap);
@@ -478,6 +499,7 @@ $data
     .then(function (mydatabase, factory, type) {
         var timer;
         service = mydatabase;
+
         lmap.on('click', function (e) {
             //window.clearTimeout(timer);
             //timer = window.setTimeout(function () {
@@ -517,10 +539,10 @@ $data
             window.clearTimeout(timer);
         });
         lmap.on('dragend', function (e) {
-            doSearch("reposition");
+            doSearch("reposition", 1000);
         });
         lmap.on('zoomend', function (e) {
-            doSearch("reposition");
+            doSearch("reposition", 1000);
         });
 
     });
