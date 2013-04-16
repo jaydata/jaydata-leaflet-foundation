@@ -73,6 +73,7 @@
         </div>
 
         {{include tmpl="#addNewDialogTemplate"/}}
+        {{include tmpl="#operationErrorTemplate"/}}
     </script>
 
     <div id="login" class="reveal-modal small">
@@ -89,6 +90,20 @@
             </div>
         </div>
     </div>
+
+    <script id="operationErrorTemplate" type="text/x-jsrender">
+        <div id="opError" class="reveal-modal medium" style="z-index:1000">
+            <a class="close-reveal-modal">&#215;</a>
+            <h3>Modification rejected</h3>
+            {^{if error}}
+                {^{for error}}
+                    {^{for data}}
+                    <div>{{> message}}</div>
+                    {{/for}}
+                {{/for}}
+            {{/if}}
+        </div>
+    </script>
 
     <script id="addNewDialogTemplate" type="text/x-jsrender">
         <div id="addNewPoint" class="reveal-modal medium" style="z-index:1000">

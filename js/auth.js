@@ -5,6 +5,7 @@
     });
     hello.subscribe('auth.login', function (auth) {
         // call user information, for the given network
+        console.log("authlogin event", auth);
         try {
             hello.api(auth.network + '/me', function (r) {
                 if (!r.id || !!document.getElementById(r.id)) {
@@ -20,7 +21,12 @@
             hello.logout();
         }
     });
+    hello.subscribe('auth.update', function (auth) {
+        console.log("auth.update", auth);
+        window.logedInUser = null;
+    });
     hello.subscribe('auth.logout', function (auth) {
+        console.log("logout event", auth);
         window.logedInUser = null;
     });
 

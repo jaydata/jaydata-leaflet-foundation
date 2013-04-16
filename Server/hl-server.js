@@ -9,7 +9,7 @@ var mySvc = $data.EntityContext.extend("NyNs.MySvc", {
         uid: String,
         id: {type: 'id', key: true, computed: true }
     }) },
-    _ensureRegister: function(user, onPermitted) {
+    _ensureAthorized: function(user,permission, onPermitted) {
         var self = this;
         var Editors = self.Editors;
         var results = [];
@@ -47,11 +47,10 @@ var mySvc = $data.EntityContext.extend("NyNs.MySvc", {
     update: function (r) {
         ///<param name="r" type="Object" />
         ///<returns type="Object" />
-
         var p = r.record;
         var user = r.user;
         console.log("update:", r);
-        return this._ensureRegister(user, function (ok, error) {
+        return this._ensureAthorized(user, "create", function (ok, error) {
             var data = '';
             var http = require('http');
             var resFn = function (res) {
@@ -86,14 +85,11 @@ var mySvc = $data.EntityContext.extend("NyNs.MySvc", {
     },
     create: function (r) {
         ///<param name="r" type="Object" />
-        ///<returns type="string" />
+        ///<returns type="Object" />
         var p = r.record;
         var user = r.user;
-        
-        return function (ok, error) {
-            this._ensureRegister(user);
-        }
-        return function (ok, error) {
+        console.log("update:", r);
+        return this._ensureAthorized(user, "update", function (ok, error) {
             var data = '';
             var http = require('http');
             var resFn = function (res) {
@@ -123,13 +119,16 @@ var mySvc = $data.EntityContext.extend("NyNs.MySvc", {
             req.on('error', errorFn);
             req.end(JSON.stringify(p));
 
-        };
+        });
 
     },
-    delete: function (p) {
-        ///<param name="p" type="Object" />
-        ///<returns type="string" />
-        return function (ok, error) {
+    delete: function (r) {
+        ///<param name="r" type="Object" />
+        ///<returns type="Object" />
+        var p = r.record;
+        var user = r.user;
+        console.log("update:", r);
+        return this._ensureAthorized(user,  "delete", function (ok, error) {
             var data = '';
             var http = require('http');
             var resFn = function (res) {
@@ -159,7 +158,7 @@ var mySvc = $data.EntityContext.extend("NyNs.MySvc", {
             req.on('error', errorFn);
             req.end();
 
-        };
+        });
 
     },
     reverse: function (p) {

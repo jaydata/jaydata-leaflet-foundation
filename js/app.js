@@ -151,8 +151,64 @@ var app = {
     },
     hideEditor: function () {
         hideRightPanel();
-    }
+    },
 
+    error: null,
+    showError: function() {
+        $('#opError').foundation('reveal', 'open');
+    },
+    hideError: function() {
+
+    },
+    save: function () {
+        ensureAuthenticate()
+                     .then(function (n) {
+                         //if (!window.logedInUser) {
+                         //    alert("User lost. Click again to reclaim");
+                         //    hello.logout();
+                         //    return;
+                         //};
+                         try {
+                             app.selectedPoint
+                                .save()
+                                .then(function (opResult) {
+                                    console.dir(opResult);
+                                    //app.hideEditor();
+                                })
+                                .fail(function (opResult) {
+                                    $.observable(app).setProperty("error", opResult);
+                                    app.showError();
+                                    console.dir(opResult);
+                                });
+                         } catch (e) {
+                             alert("exception");
+                             console.log(e);
+                         }
+                     })
+                     .fail(function () { alert('error'); });
+    },
+
+    remove: function () {
+        ensureAuthenticate()
+            .then(function (n) {
+                //if (!window.logedInUser) {
+                //    alert("User lost. Click again to reclaim");
+                //    hello.logout();
+                //    return;
+                //};
+                app.selectedPoint
+                    .remove()
+                    .then(function (opResult) {
+                        app.hideEditor();
+                    })
+                    .fail(function (opResult) {
+                        $.observable(app).setProperty("error", opResult);
+                        app.showError();
+                        console.dir(opResult)
+                    });
+            })
+            .fail(function () { alert('error') });
+    }
 }
 
 
@@ -234,13 +290,33 @@ var pointApi = {
         p.removeFromMap = function () {
             visiblePins.removeLayer(marker);
         }
+        function getUser() {
+            return { id: window.logedInUser.id, name: window.logedInUser.name } 
+        }
 
+        function translateServiceError(result) {
+            console.log("update error", result);
+            if (result &&
+                result.data[0] &&
+                result.data[0].response &&
+                result.data[0].response.body) {
+                var res = JSON.parse(result.data[0].response.body);
+
+                res = Array.isArray(res) ? res : JSON.parse(res.error.message);
+                //return $.Deferred(function (newDefer) {
+                //    newDefer.reject({ status: "error", data: res });
+                //});
+                return { status: "error", data: res }
+            }
+        }
         p.remove = function () {
             var self = this;
-            return service.delete(self).then(function () {
-                var idx = app.items.indexOf(self);
-                $.observable(app.items).remove(idx);
-            });
+            return service
+                    .delete({ record: { id: self.record.id }, user: getUser() })
+                    .then(function () {
+                        var idx = app.items.indexOf(self);
+                        $.observable(app.items).remove(idx);
+                    }, translateServiceError);
         }
 
         p.save = function () {
@@ -255,25 +331,19 @@ var pointApi = {
             })
             if (self.isNew) {
                 return service
-                        .create({ record: data, user: { id: window.logedInUser.id, name: window.logedInUser.name } })
-                       .then(function () {
+                        .create({ record: data, user: getUser() })
+                        .then(function () {
                            $.observable(self).setProperty("isNew", false);
                            p.getMarker().setIcon(pointApi.getPointIcon(p));
-                       });
+                        }, translateServiceError);
             } else {
                 return service
-                        .update({ record: data, user: { id: window.logedInUser.id, name: window.logedInUser.name } })
+                        .update({ record: data, user: getUser() })
                        .then(function (result) {
                            console.log("update result", result);
                            p.getMarker().setIcon(pointApi.getPointIcon(p));
-                       })
-                        .fail(function (result) {
-                            if (result && result.data[0] && result.data[0].response && result.data[0].response.body) {
-                                var res = JSON.parse(result.data[0].response.body);
-                                res = Array.isArray(res) ? res : [res];
-                            }
-                            console.log("update error", result);
-                        });
+                           return { status: "success", data: result };
+                       }, translateServiceError);
             }
         }
         return marker;
@@ -357,25 +427,13 @@ $.link.mainTemplate('#row-full', app)
          }
      })
      .on("click", ".save-command", function () {
-         ensureAuthenticate()
-             .then(function (n) {
-                 app.selectedPoint.save().then(function () {
-                     app.hideEditor();
-                 });
-             })
-             .fail(function () { alert('error') });
+         app.save();
         //ensureAuthenticate().then(function () {
         //    alert("!");
         //});
      })
     .on("click", ".remove-command", function () {
-        ensureAuthenticate()
-            .then(function (n) {
-                app.selectedPoint.remove().then(function () {
-                    app.hideEditor();
-                });
-            })
-            .fail(function () { alert('error') });
+        app.remove();
         //ensureAuthenticate().then(function () {
         //    alert("!");
         //});
@@ -505,12 +563,11 @@ navigator.geolocation.getCurrentPosition(function (o) {
 //});
 initAuth();
 $data
-    //.initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
-    .initService('http://rest.cloudapp.net:6789/svc')
+    .initService('https://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
+    //.initService('http://rest.cloudapp.net:6789/svc')
     .then(function (mydatabase, factory, type) {
         var timer;
         service = mydatabase;
-
         lmap.on('click', function (e) {
             //window.clearTimeout(timer);
             //timer = window.setTimeout(function () {
