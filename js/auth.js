@@ -15,6 +15,7 @@
                 //var target = document.getElementById("profile_"+ auth.network );
                 //target.innerHTML = '<img src="'+ r.picture +'" /> Hey '+r.name;
                 window.logedInUser = r;
+                sendMessage("info", r.name + " logged in");
                 console.log(r);
             });
         } catch (e) {

@@ -63,7 +63,7 @@ function search(options) {
             }
             
             x.results.forEach(function (p) {
-                if (!app.pointIndex[p.record_id]) {
+                if (!app.pointIndex[p.record.id]) {
                     $.observable(app.items).insert(app.items.length, p);
                 } else {
                     //console.log("not adding:" + p.record_id);
@@ -108,7 +108,84 @@ $.templates({
     popupTemplate: '#popupTemplate'
 });
 
-var socket = io.connect('http://dev-open.jaystack.net:80', { resource: "a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/socket.io" });
+var socket = io.connect('http://dev-open.jaystack.net:80',
+    { resource: "a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/socket.io" });
+
+var me = $data.createGuid().toString();
+
+socket.on("newPoint", function (data) {
+    var msg = JSON.parse(data.p);
+    dispatchMsg(msg)
+});
+
+
+function dispatchMsg(data) {
+    if (data.sender == me) return;
+    switch (data.msgType) {
+        case "info":
+            toastr.info(data.msg, "Login");
+            break;
+        case "update":
+            var toast = toastr.info(data.senderName + " updated " + data.msg.record.name, "Updated");
+            var p = data.msg;
+            if (app.pointIndex[p.record.id]) {
+                var pt = app.pointIndex[p.record.id];
+                var idx = app.items.indexOf(pt);
+                $.observable(app.items).remove(idx);
+                $.observable(app.items).insert(idx, p);
+            }
+            toast.on("click", function () {
+                lmap.panTo([p.record.lat, p.record.lon]);
+            });
+            break;
+        case "move":
+            var toast = toastr.info(data.senderName + " moved " + data.msg.record.name, "Moved");
+            var p = data.msg;
+            if (app.pointIndex[p.record.id]) {
+                var pt = app.pointIndex[p.record.id];
+                var idx = app.items.indexOf(pt);
+                $.observable(app.items).remove(idx);
+                $.observable(app.items).insert(idx, p);
+            }
+            toast.on("click", function () {
+                lmap.panTo([p.record.lat, p.record.lon]);
+            });
+            break;
+        case "new":
+            var toast = toastr.info(data.senderName + " created " + data.msg.record.name, "Created");
+            var p = data.msg;
+            if (!app.pointIndex[p.record.id]) {
+                $.observable(app.items).insert(app.items.length, p);
+            }
+            toast.on("click", function () {
+                lmap.panTo([p.record.lat, p.record.lon]);
+            });
+            break;
+        case "delete":
+            var toast = toastr.info(data.senderName + " deleted " + data.msg.record.name, "Deleted");
+            var p = data.msg;
+            if (app.pointIndex[p.record.id]) {
+                var pt = app.pointIndex[p.record.id];
+                var idx = app.items.indexOf(pt);
+                $.observable(app.items).remove(idx);
+            }
+            toast.on("click", function () {
+                lmap.panTo([p.record.lat, p.record.lon]);
+            });
+            break;
+    }
+};
+
+function sendMessage(msgType, msg) {
+    var data = {
+        sender: me,
+        senderName: window.logedInUser.name,
+        msgType: msgType,
+        msg: msg
+    };
+    socket.emit("newPoint", { sender: me, p: JSON.stringify(data) });
+}
+
 
 var app = {
     pins: null,
@@ -263,13 +340,17 @@ var pointApi = {
               })
               .on('drag', function (e) {
                   var latlng = e.target.getLatLng();
-                  $.observable(app).setProperty({
-                      "selectedPoint.record.lat": latlng.lat,
-                      "selectedPoint.record.lon": latlng.lng
-                  });
+                  $.observable(p.record).setProperty("lat", latlng.lat);
+                  $.observable(p.record).setProperty("lon", latlng.lng);
+                  //$.observable(app).setProperty({
+                  //    "selectedPoint.record.lat": latlng.lat,
+                  //    "selectedPoint.record.lon": latlng.lng
+                  //});
               })
-              .on('dragend', function (e) {  
-                 //g.latlon.coordinates = [e.target._latlng.lng, e.target._latlng.lat];
+              .on('dragend', function (e) {
+                  //alert("!");
+                  sendMessage("move", p);
+                  //g.latlon.coordinates = [e.target._latlng.lng, e.target._latlng.lat];
                  //g.latlon = g.latlon;
                  //resetProps(g);
                  //g.save()
@@ -320,6 +401,7 @@ var pointApi = {
                     .then(function () {
                         var idx = app.items.indexOf(self);
                         $.observable(app.items).remove(idx);
+                        sendMessage("delete", self);
                     }, translateServiceError);
         }
 
@@ -339,6 +421,8 @@ var pointApi = {
                         .then(function () {
                            $.observable(self).setProperty("isNew", false);
                            p.getMarker().setIcon(pointApi.getPointIcon(p));
+                           sendMessage("new", app.selectedPoint);
+
                         }, translateServiceError);
             } else {
                 return service
@@ -346,6 +430,7 @@ var pointApi = {
                        .then(function (result) {
                            console.log("update result", result);
                            p.getMarker().setIcon(pointApi.getPointIcon(p));
+                           sendMessage("update", app.selectedPoint);
                            return { status: "success", data: result };
                        }, translateServiceError);
             }
@@ -362,7 +447,7 @@ $([app.items]).bind("arrayChange", function (evt, o) {
             var markers = [];
             o.items.forEach(function (p) {
                 //if (!app.pointIndex[p.record_id]) {
-                    app.pointIndex[p.record_id] = p;
+                    app.pointIndex[p.record.id] = p;
                     markers.push(pointApi.createMarkerFromPoint(p));
                 //}
             });
@@ -370,7 +455,7 @@ $([app.items]).bind("arrayChange", function (evt, o) {
             break;
         case "remove":
             o.items.forEach(function (item) {
-                delete app.pointIndex[item.record_id];
+                delete app.pointIndex[item.record.id];
                 if (item.removeFromMap) {
                     item.removeFromMap();
                 } else {
