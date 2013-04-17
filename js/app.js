@@ -108,6 +108,7 @@ $.templates({
     popupTemplate: '#popupTemplate'
 });
 
+var socket = io.connect('http://dev-open.jaystack.net:80', { resource: "a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/socket.io" });
 
 var app = {
     pins: null,
@@ -445,7 +446,7 @@ $.link.mainTemplate('#row-full', app)
         //    alert("!");
         //});
     })
-        .on("click", ".cancel-error-command", function () {
+     .on("click", ".cancel-error-command", function () {
             app.hideError();
         })
      .on("click", ".cancel-command", function () {
@@ -542,7 +543,6 @@ function cancellAll() {
         window.clearTimeout(t);
     });
 }
-$('.leaflet-control-locate .leaflet-bar-part')[0].click();
 
 function doSearch(type, wait) {
     console.log("calling do search", wait);
@@ -558,13 +558,21 @@ function doSearch(type, wait) {
     }
 }
 
-doSearch("new", 500);
-//navigator.geolocation.getCurrentPosition(function (o) {
-//    lmap.setView([o.coords.latitude, o.coords.longitude], 15);
-//    //lmap.setView([40.72121341440144, -74.00126159191132], 15);
-//    console.log("position:", o);
-//    doSearch();
-//});
+navigator.geolocation.getCurrentPosition(function (o) {
+    window.setTimeout(function () {
+        if (L.Browser.mobile) {
+            //alert($('.leaflet-control-locate .leaflet-bar-part')[0].outerHTML);
+        } else {
+            $('.leaflet-control-locate .leaflet-bar-part')[0].click();
+            //$('.leaflet-control-locate .leaflet-bar-part')[0].click();
+        }
+    }, 0);
+
+    lmap.setView([o.coords.latitude, o.coords.longitude], 15);
+    //lmap.setView([40.72121341440144, -74.00126159191132], 15);
+    console.log("position:", o);
+    doSearch();
+});
 
 
 //initAuth();
