@@ -1,4 +1,8 @@
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+var ISCROLL_MOVE;
+
+var ISCROLL_MOVE_LIMIT = 10;
+
 
 var iScrolls = {
     iScrollOptions: {
@@ -6,7 +10,13 @@ var iScrolls = {
         lockDirection: true,
         checkDOMChanges: true,
         useTransform: true,
-        useTransition: true
+        useTransition: true,
+        onScrollStart: function (e) {
+            ISCROLL_MOVE = 0;
+        },
+        onScrollMove: function (e) {
+            ISCROLL_MOVE_LIMIT++;
+        }
     },
     listScroll: null,
     listScrollInit: function () {
