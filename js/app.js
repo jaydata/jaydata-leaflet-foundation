@@ -49,7 +49,9 @@ function search(options) {
 
     if (options.app) {
         var app = options.app;
+        var indi = indicator.beginProcess();
         $.getJSON(url, function (x) {
+            indi.complete();
             //console.log(x);
             console.log("result for: " + options.q);
             if ($('#searchInput').val() != options.q) {
@@ -69,7 +71,7 @@ function search(options) {
                     //console.log("not adding:" + p.record_id);
                 }
             });
-
+            $.observable(app).setProperty("totalCount", x.results_found);
             //console.log(x.limit, x.results_found);
             if (!L.Browser.mobile && options.type !== "followup" && (options.app.items.length < x.results_found)) {
                 var newOpts = $.extend({}, options);
@@ -205,7 +207,7 @@ var app = {
         $.observable(app.items).remove(0, app.items.length);
     },
     pointIndex: {},
-    query: "Hyp",
+    query: "Rest",
     selectedItem: null,
     selectedPoint: null,
     newAddress: null,
@@ -222,6 +224,7 @@ var app = {
         app.selectPoint(selectedItem.data);
     },
     items: [],
+    totalCount: 0,
     editorVisible: false,
     showEditor: function () {
         showRightPanel();
@@ -556,6 +559,7 @@ function startService() {
                 }
             });
             lmap.on('zoomend', function (e) {
+                indicator.setVisible(lmap.getZoom() >= 15);
                 if (lmap.getZoom() >= 15) {
                     doSearch("reposition", 1000);
                 }
@@ -645,6 +649,8 @@ $(function () {
     trace = new $data.LeafletTrace();
     trace.addTo(lmap);
     L.control.locate().addTo(lmap);
+    indicator = new $data.NetworkIndicator();
+    indicator.addTo(lmap);
     app.pins = visiblePins;
     window.setTimeout(function () {
         lmap.addLayer(bing);
@@ -660,22 +666,22 @@ $(function () {
     }
 
 
+    doSearch();
 
-    navigator.geolocation.getCurrentPosition(function (o) {
-        window.setTimeout(function () {
-            if (L.Browser.mobile) {
-                //alert($('.leaflet-control-locate .leaflet-bar-part')[0].outerHTML);
-            } else {
-                $('.leaflet-control-locate .leaflet-bar-part')[0].click();
-                //$('.leaflet-control-locate .leaflet-bar-part')[0].click();
-            }
-        }, 0);
+    //navigator.geolocation.getCurrentPosition(function (o) {
+    //    window.setTimeout(function () {
+    //        if (L.Browser.mobile) {
+    //            //alert($('.leaflet-control-locate .leaflet-bar-part')[0].outerHTML);
+    //        } else {
+    //            $('.leaflet-control-locate .leaflet-bar-part')[0].click();
+    //            //$('.leaflet-control-locate .leaflet-bar-part')[0].click();
+    //        }
+    //    }, 0);
 
-        lmap.setView([o.coords.latitude, o.coords.longitude], 15);
-        //lmap.setView([40.72121341440144, -74.00126159191132], 15);
-        console.log("position:", o);
-        doSearch();
-    });
+    //    lmap.setView([o.coords.latitude, o.coords.longitude], 15);
+    //    //lmap.setView([40.72121341440144, -74.00126159191132], 15);
+    //    console.log("position:", o);
+    //});
 
     startSocket();
     initAuth();

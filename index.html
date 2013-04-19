@@ -29,7 +29,57 @@
     <link href="leafletjs/L.Control.Locate.css" rel="stylesheet" />
     <link href="js/toastr.css" rel="stylesheet" />
     <link href="js/toastr-responsive.css" rel="stylesheet" />-->
+    <style>
+        .leaflet-control-network {
+            width:22px;
+            height:22px;
+            margin-left: 13px !important;
+            margin-top: 12px;
+            background-color:whitesmoke;
+            background-image: url(/network-16.png);
+            background-repeat:no-repeat;
+            background-position-x:center;
+            background-position-y:center;
+        }
 
+
+
+
+        .leaflet-touch .leaflet-control-network {
+            width: 35px;
+            height: 35px;
+            margin-left: 13px !important;
+            margin-top: 12px;
+            background-color: whitesmoke;
+            background-image: url(/network-24.png);
+            background-repeat: no-repeat;
+            background-position-x: center;
+            background-position-y: center;
+            border: 0px solid none !important;
+            -webkit-box-shadow: none !important;
+            box-shadow: none !important;    
+        }
+
+        .leaflet-control-network img {
+            width:20px;
+            height:20px;
+            border-radius: 4px 4px 4px 4px;
+            border: 0px solid none !important;
+        }
+
+        .leaflet-touch .leaflet-control-network img {
+            margin-left:2px;
+            margin-top:2px;
+            width:28px;
+            height:28px;
+            border-radius: 4px 4px 4px 4px;
+        }
+
+         .leaflet-control-network.hidden {
+            display:none !important;
+            visibility: hidden !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -45,7 +95,7 @@
 							    <div class="small-12 columns relative">
 								    <i class="general foundicon-search absolute"></i>
                                     <input type="text" id="searchInput" class="input-search" data-link="query" placeholder="Search here...">
-                                    <div class="abs-right color-gray">{^{> items.length}}</div>
+                                    <div class="abs-right color-gray">{^{> items.length}} /  {^{> totalCount}}</div>
 							    </div>
 						    </div>
 						    <div class="row collapse relative">

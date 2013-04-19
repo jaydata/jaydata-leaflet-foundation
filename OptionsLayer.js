@@ -1,6 +1,6 @@
-﻿$data.LeafletOptions = L.Control.extend({
+﻿$data.NetworkIndicator  = L.Control.extend({
     options: {
-        position: 'topright',
+        position: 'topleft',
         autoZIndex: true
     },
 
@@ -16,12 +16,18 @@
         //map
 		//    .on('layeradd', this._onLayerChange, this)
 		//    .on('layerremove', this._onLayerChange, this);
-        var container = this._container = L.DomUtil.create('div', 'leaflet-control-options');
+        var container = this._container = L.DomUtil.create('div', 'leaflet-bar leaflet-control-network');
         //$(container).html('<b>!</b>');
         console.log(container);
         return container;
     },
-
+    setVisible: function (v) {
+        if (v) {
+            $(this._container).removeClass('hidden');
+        } else {
+            $(this._container).addClass('hidden');
+        }
+    },
     beginProcess: function (process) {
         var indicator = $("<div style='font-size: 8pt'><img src='ajax-loader.gif' /></div>");
         $(this._container).append(indicator);
