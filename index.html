@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
 <!--[if gt IE 8]><!-->
+<!--<html class="no-js" lang="en" xmanifest="cache.manifest">-->
 <html class="no-js" lang="en">
 <!--<![endif]-->
 
@@ -11,8 +12,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
     <title>HyperLocal</title>
+    <script src="/js/vendor/custom.modernizr.js"></script>
+    <link rel="stylesheet" href="css.css" />
 
-    <link rel="stylesheet" href="css/normalize.css" />
+<!--    <link rel="stylesheet" href="css/normalize.css" />
     <link rel="stylesheet" href="css/foundation.css" />
     <link rel="stylesheet" href="css/general_foundicons.css" />
 
@@ -24,11 +27,12 @@
     <link href="leafletjs/leaflet.awesome-markers.css" rel="stylesheet" />
     <link href="leafletjs/cluster.css" rel="stylesheet" />
     <link href="leafletjs/L.Control.Locate.css" rel="stylesheet" />
-    <script src="js/vendor/custom.modernizr.js"></script>
     <link href="js/toastr.css" rel="stylesheet" />
-    <link href="js/toastr-responsive.css" rel="stylesheet" />
+    <link href="js/toastr-responsive.css" rel="stylesheet" />-->
+
 </head>
 <body>
+
     <div id="row-full" class="row row-full">
     </div>
 
@@ -125,32 +129,30 @@
         <div id="addNewPoint" class="reveal-modal medium" style="z-index:1000">
             <div class="row">
                 <div class="large-12 columns">
-                    <h1 class="hide-for-small">Add a new point</h1>
-                    <h3 class="show-for-small">Add point</h3>
+                    <h1 class="show-for-xlarge">Add a new point</h1>
+                    <h3 class="show-for-medium hide-for-large-up">Add point</h3>
                 </div>
             </div>
             <div class="row">
                 {^{for selectedPoint}}
-                    <div class="large-4 columns" data-bind="with: poi">
+                    <div class="large-6 columns" data-bind="with: poi">
                         <label>Name </label>    
-                        <input type="text" placeholder="Name of place"  data-link="record.name"/>
-                    </div>    
+                        {^{for record}}
+                            <input type="text" placeholder="Name of place"  data-link="name"/>
+                        {{/for}}    
+                    </div>
                 {{/for}}
-
-                <div class="large-5 columns">
+                <div class="large-6 columns">
                     {^{for newAddress tmpl="#selectAddressTemplate" /}}
-                </div>
-                <div class="large-5 columns">
                 </div>
             </div>
             <div class="row">
-                <div class="large-3 columns">
+                <div class="large-4 small-5 columns">
                     <a href="#" class="button prefix ok-command">OK</a>
                 </div>
-                <div class="large-3 columns">
-                  <a href="#" class="button prefix neutral cancel-command">Cancel</a>
-                </div>
-                <div class="large-6 columns">
+                <div class="large-4 small-2 columns"></div>
+                <div class="large-4 small-5 columns">
+                  <a href="#" class="button prefix cancel-command">Cancel</a>
                 </div>
             </div>
         </div>
@@ -158,7 +160,11 @@
 
     <script id="selectAddressTemplate" type="text/x-jsrender">
     <label>Address</label>
-    <input type="text" readonly placeholder="Name of place"  data-link="Address.FormattedAddress"/>
+        {^{if #data}}
+            <input type="text" readonly placeholder="Name of place"  data-link="Address.FormattedAddress"/>
+        {{else}}
+            <input type="text" readonly placeholder="Name of place"  value="resolving address from coordinates"/>
+        {{/if}}
     </script>
 
     <script type="text/x-jsrender" id="poiTemplate">
@@ -279,10 +285,10 @@
         {{/for}}
         {{/if}}
     </script>
-    
-    <script src="js/vendor/jquery2b3.js"></script>
+<script src="/js/socket.io.js"></script>
+    <!--<script src="js/vendor/jquery2b3.js"></script>-->
+<!--    <script src="js/vendor/jquery.js"></script>
     <script src="js/toastr.js"></script>
-    <!--<script src="js/vendor/jquery.js"></script>-->
     <script src="js/vendor/jsrender.js"></script>
     <script src="js/vendor/jquery.observable.js"></script>
     <script src="js/vendor/jquery.views.js"></script>
@@ -294,20 +300,36 @@
     <script src="leafletjs/leaflet.js"></script>
     <script src="leafletjs/leaflet.awesome-markers.js"></script>
     <script src="leafletjs/BingLayer.js"></script>
-    <script src="leafletjs/cluster.js"></script>
+    <script src="leafletjs/latest/cluster.js"></script>
     <script src="TraceLayer.js"></script>
     <script src="leafletjs/L.Control.Locate.js"></script>
 
 
-    <script src="http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/socket.io/socket.io.js"></script>
 
-    <script src="js/ui.js"></script>
     <script src="js/hello.min.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/app.js"></script>-->
+    <script src="js.js"></script>
+
+
     <script>
         $(document).foundation().foundation('reveal', {
-            closeOnBackgroundClick: false
+            closeOnBackgroundClick: false,
+            animation: 'fadeAndPop',
+            animationSpeed: 0,
+            css: {
+                open: {
+                    'opacity': 1,
+                    'visibility': 'visible',
+                    'display': 'block'
+                },
+                close: {
+                    'opacity': 0,
+                    'visibility': 'hidden',
+                    'display': 'none'
+                }
+            }
         });
         
     </script>

