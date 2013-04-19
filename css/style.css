@@ -43,12 +43,18 @@ body {
 	z-index: 3200 !important;
 }
 
+.overscroll {
+	overflow: scroll;
+	-webkit-overflow-scrolling: touch;
+}
+
 /*================================================================= RIGHT COLUMN =================================================================*/
 .right-panel {
 	opacity: 1;
 	position: absolute !important; top: 0; right: 0; bottom: 0;
 	width: 100%; z-index: 4500;
-	max-width: 450px;
+	max-width: 450px; overflow: scroll;
+
 	-webkit-transform: translateX(0);
 	-moz-transform: translateX(0);
 	-o-transform: translateX(0);

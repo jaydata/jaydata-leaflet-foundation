@@ -1,6 +1,6 @@
 document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
 
-var iScrolls = {
+/*var iScrolls = {
     iScrollOptions: {
         bounce: false,
         lockDirection: true,
@@ -32,7 +32,7 @@ var iScrolls = {
             iScrolls.rightScroll = new iScroll('wrapper-right', iScrolls.iScrollOptions);
         }
     }
-};
+};*/
 
 function initUI() {
     var resizeTrigger;
@@ -56,20 +56,20 @@ window.hideRightPanel = function hideRightPanel() {
 window.showRightPanel = function showRightPanel() {
     $(".right-panel").removeClass("hidden");
 
-    setTimeout(function () {
+    /*setTimeout(function () {
         iScrolls.rightScrollInit();
-    }, 100);
+    }, 100);*/
 }
 
 window.toggleRightPanel = function toggleRightPanel() {
     var right = $(".right-column");
     right.toggleClass("hidden");
 
-    if (!right.hasClass("hidden")) {
+    /*if (!right.hasClass("hidden")) {
         setTimeout(function () {
             iScrolls.rightScrollInit();
         }, 100);
-    }
+    }*/
 }
 
 window.resizeUI = function resizeUI() {
@@ -114,7 +114,7 @@ window.resizeUI = function resizeUI() {
         document.querySelectorAll(".row.collapse.relative")[0].style.height = (windowHeight - 67) + "px";
     }
 
-    iScrolls.listScrollInit();
+    //iScrolls.listScrollInit();
     lmap.invalidateSize();
 }
 
