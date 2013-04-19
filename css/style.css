@@ -44,7 +44,8 @@ body {
 }
 
 .overscroll {
-	overflow: scroll;
+	overflow-y: scroll;
+	overflow-x: hidden;
 	-webkit-overflow-scrolling: touch;
 }
 
@@ -53,7 +54,7 @@ body {
 	opacity: 1;
 	position: absolute !important; top: 0; right: 0; bottom: 0;
 	width: 100%; z-index: 4500;
-	max-width: 450px; overflow: scroll;
+	max-width: 450px;
 
 	-webkit-transform: translateX(0);
 	-moz-transform: translateX(0);
@@ -177,6 +178,10 @@ body {
 		height: 0; max-height: 250px;
 		overflow: hidden;
 		border-bottom: 1px solid #ddd;
+	}
+
+	.row-full .left-column .overscroll {
+		max-height: 185px;
 	}
 
 	.row-full .left-column.open {

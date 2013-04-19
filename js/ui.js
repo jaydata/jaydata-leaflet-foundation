@@ -1,4 +1,4 @@
-document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
+//document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);
 var ISCROLL_MOVE;
 
 var ISCROLL_MOVE_LIMIT = 10;
