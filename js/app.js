@@ -553,6 +553,9 @@ function startService() {
                 //trace.logLine("!!");
                 window.clearTimeout(timer);
             });
+            lmap.on('dragstart', function (e) {
+                cancellAll();
+            });
             lmap.on('dragend', function (e) {
                 if (lmap.getZoom() >= 15) {
                     doSearch("reposition", 1000);
