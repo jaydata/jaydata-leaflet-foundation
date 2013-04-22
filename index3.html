@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!-->
+<!--<html class="no-js" lang="en" xmanifest="cache.manifest">-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0" />
+    <script src="js/vendor/jquery2b3.js"></script>
+    <link href="leafletjs/leaflet.css" rel="stylesheet" />
+    <script src="js/vendor/swipe.js"></script>
+        <script src="leafletjs/leaflet.js"></script>
+    <script src="leafletjs/leaflet.awesome-markers.js"></script>
+    <script src="leafletjs/BingLayer.js"></script>
+
+    <style>
+        body {
+            margin: 0px 0px 0px 0px;
+        }
+        #scroller > * { -webkit-transform: translateZ(0px); }
+        .swipe {
+          overflow: hidden;
+          /*visibility: hidden;*/
+          position: relative;
+        }
+        .swipe-wrap {
+          overflow: hidden;
+          position: relative;
+        }
+        .swipe-wrap > div {
+          float:left;
+          width: 100%;
+          position: relative;
+        }
+    </style>
+    <script>
+      $(function () {
+          
+          var viewHeight;
+          document.body.style.backgroundColor = 'teal';
+          document.body.style.height = window.innerHeight + "px";
+          document.getElementById('slider').style.height = window.innerHeight + "px";
+          $('.swipe-wrap').height(window.innerHeight);
+          document.getElementById('sl1').style.height = window.innerHeight + "px";
+          document.getElementById('map').style.height = (window.innerHeight - 20) + "px";
+
+          //var s = Swipe(document.getElementById('slider'));
+          bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
+          lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
+          var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
+          bing.addTo(lmap);
+
+          //$('#slider').append("<div>!!!!!</div>");
+      });
+        //document.getElementById('map').style.width = (window.innerWidth) + "px";
+        //alert(window.orientationChanged);
+        window.onresize = function () {
+            alert("!");
+            document.body.style.height = window.innerHeight + "px";
+            document.getElementById('slider').style.height = window.innerHeight + "px";
+            document.getElementById('sl1').style.height = window.innerHeight + "px";
+            document.getElementById('map').style.height = (window.innerHeight - 20) + "px";
+            //document.getElementById('map').style.width = (window.innerWidth) + "px";
+            console.log(window.innerHeight, document.body.offsetHeight);
+        }
+        //document.body.onresize = function () {
+        //    console.log(window.innerHeight);
+        //    document.body.style.height = window.innerHeight + "px";
+        //}
+
+    </script>
+
+    
+</head>
+<body>
+<div id='slider' class='swipe' style="background-color:goldenrod">
+<div class='swipe-wrap'>
+    <div style="width:400px;float:left;background-color:blueviolet">        
+        <ul>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+        </ul>
+    </div>
+    <div id="sl1" style="width:400px;float:left;background-color:red;">
+        <div style="height:25px">
+
+        </div>
+        <div id="map" style="background-color:green">
+
+        </div>
+    </div>
+    <div style="width:400px;float:left">      
+        <div><input /></div>
+        <ul style="overflow:scroll;height:250px;border:1px solid blue">
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+        </ul>
+</div>
+  </div>
+</div>
+  </body>
+</html>
+<!--
+    <div id="scroller" style="display:none;overflow:scroll; height:300px;width:500px;-webkit-overflow-scrolling:touch">
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>bfadasdad</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>brwrqrasdaasda</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+        <div>asdasdasd</div>
+
+   </div>
+-->
