@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<!--[if IE 8]> 				 <html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!-->
+<!--<html class="no-js" lang="en" xmanifest="cache.manifest">-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0" />
+    <script src="js/vendor/jquery2b3.js"></script>
+    <link href="leafletjs/leaflet.css" rel="stylesheet" />
+    <script src="js/vendor/swipe.js"></script>
+        <script src="leafletjs/leaflet.js"></script>
+    <script src="leafletjs/leaflet.awesome-markers.js"></script>
+    <script src="leafletjs/BingLayer.js"></script>
+
+    <style>
+        body {
+            margin: 0px 0px 0px 0px;
+            padding: 0px 0px 0px 0px;
+        }
+
+        ul {
+            -webkit-margin-before: 0px;
+        }
+        #scroller > * { -webkit-transform: translateZ(0px); }
+        .swipe {
+          overflow: hidden;
+          visibility: hidden;
+          position: relative;
+        }
+        .swipe-wrap {
+          overflow: hidden;
+          position: relative;
+        }
+        .swipe-wrap > div {
+          float:left;
+          width: 100%;
+          position: relative;
+        }
+    </style>
+    <script>
+      $(function () {
+          
+          var viewHeight;
+          document.body.style.backgroundColor = 'teal';
+          document.body.style.height = window.innerHeight + "px";
+          document.getElementById('slider').style.height = window.innerHeight + "px";
+          $('.swipe-wrap').height(window.innerHeight);
+          $('.side').height(window.innerHeight);
+          document.getElementById('map').style.height = (window.innerHeight - 20) + "px";
+          //$('#longList').height(window.innerHeight);
+
+          var s = Swipe(document.getElementById('slider'));
+          bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
+          lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
+          var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
+          bing.addTo(lmap);
+          for (var i = 0; i < 100; i++) {
+              $('#longList').append('<li>' + i + " item</li>");
+          }
+          //$('#slider').append("<div>!!!!!</div>");
+      });
+
+        window.onresize = function () {
+            document.body.style.height = window.innerHeight + "px";
+            document.getElementById('slider').style.height = window.innerHeight + "px";
+            $('.swipe-wrap').height(window.innerHeight);
+            $('.side').height(window.innerHeight);
+            document.getElementById('map').style.height = (window.innerHeight - 20) + "px";
+            //$('#longList').height(window.innerHeight);
+            //document.getElementById('map').style.height = (window.innerHeight - 20) + "px";
+            //document.getElementById('map').style.width = (window.innerWidth) + "px";
+            console.log(window.innerHeight, document.body.offsetHeight);
+        }
+        //document.body.onresize = function () {
+        //    console.log(window.innerHeight);
+        //    document.body.style.height = window.innerHeight + "px";
+        //}
+
+    </script>
+
+    
+</head>
+<body>
+<div id='slider' class='swipe' style="background-color:goldenrod">
+    <div class='swipe-wrap'>
+        <div class="side" style="float:left;background-color:blueviolet">        
+            <ul>
+                <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+                <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+                <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+                <li>Lorem impsum Lorem impsum Lorem impsum Lorem impsum</li>
+            </ul>
+        </div>
+        <div class="side" style="width:400px;float:left;background-color:red;">
+            <div style="height:25px">
+
+            </div>
+            <div id="map" style="background-color:green">
+
+            </div>
+        </div>
+        <div class="side" style="width:400px;float:left;padding: 0px 0px 0px 0px">      
+            <ul id="longList" style="overflow:scroll;height:300px;">
+            </ul>
+        </div>
+      </div>
+    </div>
+ </body>
+</html>
