@@ -31,7 +31,10 @@ window.resizeUI = function resizeUI() {
         left = $('.left-column'),
         large9 = $(".large-9")[0],
         windowWidth = window.innerWidth,
-        windowHeight = window.innerHeight
+        windowHeight = window.innerHeight;
+
+    document.getElementById('menu').style.top = (window.innerHeight - 100) + "px";
+
 
     if (windowWidth < 480) {
         if (left.hasClass("open")) {

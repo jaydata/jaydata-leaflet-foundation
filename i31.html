@@ -9,45 +9,44 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0" />
     <script src="js/vendor/jquery2b3.js"></script>
-    <link href="leafletjs/leaflet.css" rel="stylesheet" />
-    <script src="js/vendor/swipe.js"></script>
-        <script src="leafletjs/leaflet.js"></script>
-    <script src="leafletjs/leaflet.awesome-markers.js"></script>
-    <script src="leafletjs/BingLayer.js"></script>
-
+    <script src="js/jaydata/jaydata.js"></script>
     <style>
         body {
             margin: 0px 0px 0px 0px;
 
         }
 
-        .stuff {
-            /*opacity: 1;*/
-            -moz-transition: all 1s ease-in-out;
-            -o-transition: all 1s ease-in-out;
-            -webkit-transition: all 1s ease-in-out;
-            transition: all 1s ease-in-out;
-            left:100px;
-            top:0;
-            height:150px;
-            width:150px;
-        }
-        .hide {
-            /*-moz-transform: translate3d(0,-100%,0);
-            -ms-transform: translate3d(0,-100%,0);
-            -o-transform: translate3d(0,-100%,0);
-            -webkit-transform: translate3d(0,-100%,0);*/
-            /*transform: translate3d(0,-100%,0);*/
-            top: -150px
-        }
     </style>
     <script>
-        $(function () {
 
+        $data.Entity.extend("CT", {
+            F1: { type: String },
+            F2: { type: String }
         });
-        $(document).on("click", ".presser", function () {
-            $('.stuff').toggleClass('hide');
+
+        $data.Entity.extend("Item", {
+            id: { type: $data.Integer, key: true, computed: true },
+            name: { type: String },
+            CTs: {
+                type: Array,
+                elementType: CT,
+                sqLite: {
+                    fromDb: function (value, memberDefinition, context, type) {
+                        return (value ? JSON.parse(value) : undefined);
+                    },
+                    toDb: function (value, memberDefinition, context, type) {
+                        return (value ? JSON.stringify(value) : undefined);
+                    }
+
+                }
+            }
         });
+
+        $data.EntityContext.extend("ItemContext", {
+            Items: { type: $data.EntitySet, elementType: Item }
+        });
+
+
     </script>
 
     

@@ -8,6 +8,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0" />
+    <script src="js/vendor/custom.modernizr.js"></script>
     <script src="js/vendor/jquery2b3.js"></script>
     <script src="js/jaydata/jaydata.js"></script>
     <link href="leafletjs/leaflet.css" rel="stylesheet" />
@@ -40,28 +41,53 @@
           width: 100%;
           position: relative;
         }
+
+        .scroll {
+            overflow:scroll;
+        }
+
+        body.apple .scroll {
+            -webkit-overflow-scrolling: touch;
+        }
+
+
+        li {
+            background-color: gold;
+            width:100px;
+            height:80px;
+            float:left;
+        }
     </style>
     <script>
       $(function () {
-          
           var viewHeight;
           document.body.style.backgroundColor = 'teal';
           document.body.style.height = window.innerHeight + "px";
           document.getElementById('slider').style.height = window.innerHeight + "px";
           $('.swipe-wrap').height(window.innerHeight);
           $('.side').height(window.innerHeight);
-          document.getElementById('map').style.height = (window.innerHeight - 20) + "px";
+          document.getElementById('map').style.height = (window.innerHeight) + "px";
           //$('#longList').height(window.innerHeight);
+          var ua = window.navigator.userAgent.toLowerCase();
 
+          if (window.navigator.userAgent.toLowerCase().indexOf("os x") > -1) {
+              $(document.body).addClass("apple");
+          }
           swiper = Swipe(document.getElementById('slider'));
           bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
           lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
           var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
           new $data.NetworkIndicator().addTo(lmap);
           bing.addTo(lmap);
-          for (var i = 0; i < 100; i++) {
-              $('#longList').append('<li>' + i + " item</li>");
+          for (var i = 0; i < 200; i++) {
+              $('#items').append('<li><a href="#">' + i + " item</a></li>");
           }
+
+          $(document).on('click', 'li', function () {
+              swiper.next();
+          });
+          //alert('WebkitOverflowScrolling' in $('.scroll')[0].style);
+
           //$('#slider').append("<div>!!!!!</div>");
       });
 
@@ -88,21 +114,16 @@
 <body>
 <div id='slider' class='swipe' style="background-color:goldenrod">
     <div class='swipe-wrap'>
-        <div class="side" style="width:400px;float:left;background-color:red;">
-            <div id="map" style="background-color:green">
-
-            </div>
+        <div class="side" id="map" style="width:400px;float:left;background-color:red;">
         </div>
-        <div class="side" id="poiList" style="width:400px;float:left;padding: 0px 0px 0px 0px"> 
-        </div>
+        <div class="side" id="poiList" style="width:400px;float:left;padding: 0px 0px 0px 0px">
+            <ul class="side scroll" id="items">
 
+            </ul>
+        </div>
         <div class="side" id="poiEditor" style="float:left;background-color:blueviolet">        
-        
         </div>
-
-      </div>
     </div>
-
-
+</div>
  </body>
 </html>

