@@ -71,23 +71,5 @@ window.toggleMap = function toggleMap() {
     $(".left-column").toggleClass("open");
     $(".map").toggleClass("open");
 
-    //resizeUI();
+    resizeUI();
 }
-
-$(document).ready(function(){
-    /*document.getElementById('swipe').style.maxWidth = window.innerWidth - 40 + "px";
-    document.getElementById('row-full').style.width = window.innerWidth - 40 + "px";*/
-    document.querySelector('.swipe-wrap').style.height = window.innerHeight - 120 + "px"
-
-    // SWIPE with pure JS
-    var elem = document.getElementById('swipe');
-    window.swipe = Swipe(elem, {
-        startSlide: 1,
-        // auto: 3000,
-        continuous: false,
-        // disableScroll: true,
-        // stopPropagation: true,
-        // callback: function(index, element) {},
-        // transitionEnd: function(index, element) {}
-    });
-});
