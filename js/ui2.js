@@ -50,7 +50,6 @@ window.resizeUI2 = function resizeUI() {
             mapHtml.style.width = (windowWidth - $(".left-column").width()) + "px";
             large9.style.width = (windowWidth - $(".left-column").width() - 1) + "px";
             left[0].style.height = windowHeight + "px";
-            document.getElementById("wrapper").style.height = (windowHeight - 67) + "px";
         } else {
             mapHtml.style.width = windowWidth + "px";
             large9.style.width = windowWidth + "px";

@@ -2,7 +2,6 @@ body {
 	max-width: 100%;
 	width: 100%;
 	overflow: hidden !important;
-	overflow-x: hidden !important;
 	-webkit-user-select:none;
 	-webkit-text-size-adjust:none;
 }
