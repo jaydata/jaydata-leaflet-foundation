@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=0" />
     <script src="js/vendor/jquery2b3.js"></script>
-    <script src="js/jaydata/jaydata.js"></script>
+    <script src="http://include.jaydata.org/jaydata.js"></script>
     <style>
         body {
             margin: 0px 0px 0px 0px;
@@ -19,18 +19,18 @@
     </style>
     <script>
 
-        $data.Entity.extend("CT", {
-            F1: { type: String },
-            F2: { type: String }
+        $data.Entity.extend('Chefkoch.Cookbook.v2.Ingredient', {
+            'id': { key: false, type: 'Edm.Int32', nullable: false, required: true },
+            'name': { key: false, type: 'Edm.String', nullable: false, required: true },
+            'unit': { key: false, type: 'Edm.String', nullable: false, required: true },
+            'amount': { key: false, type: 'Edm.Decimal', nullable: false, required: true }
         });
 
-        $data.Entity.extend("Item", {
-            id: { type: $data.Integer, key: true, computed: true },
-            name: { type: String },
-            CTs: {
-                type: Array,
-                elementType: CT,
-                sqLite: {
+        $data.Entity.extend('Chefkoch.Cookbook.v2.Recipe', {
+            'id': { key: true, type: 'Edm.String', nullable: false, required: true },
+
+            'ingredients': {
+                type: 'Array', elementType: 'Chefkoch.Cookbook.v2.Ingredient', sqLite: {
                     fromDb: function (value, memberDefinition, context, type) {
                         return (value ? JSON.parse(value) : undefined);
                     },
@@ -42,8 +42,9 @@
             }
         });
 
+
         $data.EntityContext.extend("ItemContext", {
-            Items: { type: $data.EntitySet, elementType: Item }
+            Items: { type: $data.EntitySet, elementType: 'Chefkoch.Cookbook.v2.Recipe' }
         });
 
 

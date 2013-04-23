@@ -36,7 +36,6 @@ window.resizeUI = function resizeUI() {
     document.getElementById('editorPanel').style.height = windowHeight + "px";
 
     if (windowWidth < 480) {
-        alert(windowWidth);
         if (left.hasClass("open")) {
             mapHtml.style.height = (windowHeight - 250) + "px";
             large9.style.height = (windowHeight - 250) + "px";

@@ -44,18 +44,22 @@
         }
 
         .leaflet-touch .leaflet-control-network {
-            width: 35px;
-            height: 35px;
+            width: 22px;
+            height: 22px;
             margin-left: 13px !important;
             margin-top: 12px;
             background-color: whitesmoke;
+            -moz-background-size:contain;
+            -o-background-size:contain;
+            -webkit-background-size: contain;
+            background-size:contain;
             background-image: url(/network-24.png);
             background-repeat: no-repeat;
             background-position-x: center;
             background-position-y: center;
             border: 0px solid none !important;
             -webkit-box-shadow: none !important;
-            box-shadow: none !important;    
+            box-shadow: none !important;
         }
 
         .leaflet-control-network img {
@@ -68,8 +72,8 @@
         .leaflet-touch .leaflet-control-network img {
             margin-left:2px;
             margin-top:2px;
-            width:28px;
-            height:28px;
+            width:16px;
+            height:16px;
             border-radius: 4px 4px 4px 4px;
         }
 
@@ -77,6 +81,11 @@
             display:none !important;
             visibility: hidden !important;
         }
+
+
+         .leaflet-touch .leaflet-control-locate {
+             display:none
+         }
 
         .menu {
             right:30px;
@@ -102,6 +111,23 @@
             -webkit-tap-highlight-color: rgba(0,0,0,0);  
             padding: 10px 10px 10px 10px;
         }
+
+         .leaflet-control-edit-switch {
+            width:22px;
+            height:22px;
+            margin-left: 13px !important;
+            margin-top: 12px;
+            font-size:14px;
+            background-color:whitesmoke;
+        }
+
+         .leaflet-control-edit-switch.active {
+            background-color:red !important;
+        }
+
+         .leaflet-touch .leaflet-control-edit-switch {
+             display:none
+         }
     </style>
     <script>
         function mnuClick() {
@@ -126,7 +152,11 @@
 							    <div class="small-12 columns relative">
 								    <i class="general foundicon-search absolute"></i>
                                     <input type="text" id="searchInput" class="input-search" data-link="query" placeholder="Search here...">
-                                    <div class="abs-right color-gray">{^{> items.length}} /  {^{> totalCount}}</div>
+                                    <div class="abs-right color-gray">
+                                        
+                                        {^{> visibleCount }} /  {^{> totalCount}}
+
+                                    </div>
 							    </div>
 						    </div>
 						    <div class="row collapse relative scroll" id="listPanel">
@@ -153,7 +183,7 @@
                         <li id="editModeSwitch" data-link="class{: ~app.editMode ? 'active-menu' : ''}">
                             <span class="foundicon-edit"></span>
                         </li>
-                        <li class="active-menu toggle-map foundicon-search" onclick="toggleMap()"></li>
+                        <li class="toggle-map foundicon-search" onclick="toggleMap()"></li>
                         <li id="locateMe"><a class="menu-link foundicon-location" href="#"></a></li>
                     </ul>
 		    </div>
@@ -274,8 +304,8 @@
     </script>
 
     <script type="text/x-jsrender" id="popupTemplate">
-        <div >
-            <div class="popup-bubble">{^{> record.name}}</div>
+        <div class="popup-container">
+            <div class="popup-bubble"><a href="javascript:app.showEditor()">{^{> record.name}}</a></div>
         </div>
     </script>
 
@@ -374,7 +404,7 @@
     </script>
 
     <script src="js/socket.io.js"></script>
-    <script src="js/vendor/jquery2b3.js"></script>
+<!--    <script src="js/vendor/jquery2b3.js"></script>
     <script src="js/toastr.js"></script>
     <script src="js/vendor/jsrender.js"></script>
     <script src="js/vendor/jquery.observable.js"></script>
@@ -384,10 +414,10 @@
     <script src="js/foundation.min.js"></script>
     <script src="js/vendor/iscroll.js"></script>
 
-    <script src="leafletjs/053/leaflet.js"></script>
+    <script src="leafletjs/leaflet.js"></script>
     <script src="leafletjs/leaflet.awesome-markers.js"></script>
     <script src="leafletjs/BingLayer.js"></script>
-    <script src="leafletjs/053/cluster.js"></script>
+    <script src="leafletjs/cluster.js"></script>
     <script src="TraceLayer.js"></script>
     <script src="OptionsLayer.js"></script>
     <script src="leafletjs/L.Control.Locate.js"></script>
@@ -395,8 +425,8 @@
     <script src="js/hello.min.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/app.js"></script>
-<!--    <script src="js.js"></script>-->
+    <script src="js/app.js"></script>-->
+    <script src="js.js"></script>
 
     <script>
         $(document).foundation().foundation('reveal', {

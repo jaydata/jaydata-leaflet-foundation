@@ -75,15 +75,25 @@ function search(options) {
                 }
             });
             
-            function pushTen() {
-                var ten = newPoints.splice(0, 10);
-                $.observable(app.items).insert(app.items.length, ten);
-                if (newPoints.length > 0) {
-                    addingPoints  = window.setTimeout(pushTen, 10);
-                }
-            }
-            addingPoints = window.setTimeout(pushTen, 10);
+            if (L.Browser.mobile) {
+                window.webkitRequestAnimationFrame(function () {
+                });
+                function pushTen() {
 
+                    var ten = newPoints.splice(0, 20);
+                    if (!mapIsDragging) {
+                        $.observable(app.items).insert(app.items.length, ten);
+                    }
+                    if (newPoints.length > 0) {
+                        addingPoints = window.webkitRequestAnimationFrame(pushTen);
+                    }
+                }
+                addingPoints = window.webkitRequestAnimationFrame(pushTen);
+            } else {
+                window.webkitRequestAnimationFrame(function () {
+                });
+                $.observable(app.items).insert(app.items.length, newPoints);
+            }
             $.observable(app).setProperty("totalCount", x.results_found);
             //console.log(x.limit, x.results_found);
             if (options.type !== "followup" && (options.app.items.length < x.results_found)) {
@@ -204,6 +214,9 @@ function sendMessage(msgType, msg) {
 var app = {
     pins: null,
     editMode: false,
+    toggleEditMode: function() {
+        $.observable(app).setProperty("editMode", !app.editMode);
+    },
     removeInvisiblePoints: function () {
         var bounds = lmap.getBounds();
         var itemsToRemove = [];
@@ -241,6 +254,7 @@ var app = {
     },
     items: [],
     totalCount: 0,
+    visibleCount: 0,
     editorVisible: false,
     showEditor: function () {
         showRightPanel();
@@ -266,21 +280,44 @@ var app = {
                          //    hello.logout();
                          //    return;
                          //};
-                         try {
-                             app.selectedPoint
-                                .save()
-                                .then(function (opResult) {
-                                    console.dir(opResult);
-                                    app.hideEditor();
-                                })
-                                .fail(function (opResult) {
-                                    $.observable(app).setProperty("error", opResult);
-                                    app.showError();
-                                    console.dir(opResult);
-                                });
-                         } catch (e) {
-                             toastr.error(e);
-                             console.log(e);
+                         if (!window.logedInUser) {
+                             window.setTimeout(function () {
+                                 try {
+                                     app.selectedPoint
+                                        .save()
+                                        .then(function (opResult) {
+                                            console.dir(opResult);
+                                            app.hideEditor();
+                                        })
+                                        .fail(function (opResult) {
+                                            $.observable(app).setProperty("error", opResult);
+                                            app.showError();
+                                            console.dir(opResult);
+                                        });
+                                 } catch (e) {
+                                     //toastr.error(e);
+                                     console.log(e);
+                                 }
+
+                             }, 2000);
+
+                         } else {
+                             try {
+                                 app.selectedPoint
+                                    .save()
+                                    .then(function (opResult) {
+                                        console.dir(opResult);
+                                        app.hideEditor();
+                                    })
+                                    .fail(function (opResult) {
+                                        $.observable(app).setProperty("error", opResult);
+                                        app.showError();
+                                        console.dir(opResult);
+                                    });
+                             } catch (e) {
+                                 //toastr.error(e);
+                                 console.log(e);
+                             }
                          }
                      })
                      .fail(function (args) {
@@ -371,7 +408,10 @@ var pointApi = {
               })
               .on('dragend', function (e) {
                   //alert("!");
-                  sendMessage("move", p);
+                  if (app.editMode) {
+                      app.save();
+                      sendMessage("move", p);
+                  }
                   //g.latlon.coordinates = [e.target._latlng.lng, e.target._latlng.lat];
                  //g.latlon = g.latlon;
                  //resetProps(g);
@@ -382,11 +422,11 @@ var pointApi = {
              })
 
         var d = $('<div></div>');
-        $.link.popupTemplate(d, p).on("click", "div", function() {
-            app.showEditor();
-        });
-        marker.bindPopup(d[0]);
-
+        //$.link.popupTemplate(d, p).on("click", "div", function() {
+        //    app.showEditor();
+        //});
+        //marker.bindPopup(d[0]);
+        marker.bindPopup($('#popupTemplate').render(p));
         //$.observable(p).observe("record.name", function () {
         //    marker.bindPopup($('#popupTemplate').render(p));
         //});
@@ -475,20 +515,25 @@ $.observable(app).observe("items", function () {
                     //}
                 });
                 visiblePins.addLayers(markers);
+                $.observable(app).setProperty("visibleCount", app.items.length);
                 break;
             case "remove":
+                var markers = [];
                 o.items.forEach(function (item) {
                     delete app.pointIndex[item.record.id];
-                    if (item.removeFromMap) {
-                        item.removeFromMap();
-                    } else {
-                        console.dir("!!!");
-                    }
+                    markers.push(item.getMarker());
+                    //if (item.removeFromMap) {
+                    //    item.removeFromMap();
+                    //} else {
+                    //    console.dir("!!!");
+                    //}
                     if (item === app.selectedPoint) {
                         app.selectPoint(null);
                         app.hideEditor();
                     }
                 });
+                visiblePins.removeLayers(markers);
+                $.observable(app).setProperty("visibleCount", app.items.length);
                 break;
             default:
                 alert("!");
@@ -498,6 +543,7 @@ $.observable(app).observe("items", function () {
 
 });
 
+var mapIsDragging = false;
 
 
 
@@ -574,9 +620,11 @@ function startService() {
                 window.clearTimeout(timer);
             });
             lmap.on('dragstart', function (e) {
+                mapIsDragging = true;
                 cancellAll();
             });
             lmap.on('dragend', function (e) {
+                mapIsDragging = false;
                 if (lmap.getZoom() >= 15) {
                     doSearch("reposition", 1000);
                 }
@@ -597,15 +645,15 @@ $(function () {
 
     $.link.mainTemplate('#row-full', app)
     .on("click", ".main-list > li", function () {
-         var selectedItem = $.view(this);
-         app.selectItem(selectedItem);
-         var marker = $.view(this).data.getMarker();
-         $('#searchInput').blur();
-         visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
-             marker.openPopup();
-         });
-         //lmap.panTo(marker.getLatLng());
-     })
+        var selectedItem = $.view(this);
+        app.selectItem(selectedItem);
+        var marker = $.view(this).data.getMarker();
+        $('#searchInput').blur();
+        visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
+            marker.openPopup();
+        });
+        //lmap.panTo(marker.getLatLng());
+    })
      .on("click", ".edit-command", function () {
          app.showEditor();
          var marker = $.view(this).data.getMarker();
@@ -629,9 +677,9 @@ $(function () {
      })
      .on("click", ".save-command", function () {
          app.save();
-        //ensureAuthenticate().then(function () {
-        //    alert("!");
-        //});
+         //ensureAuthenticate().then(function () {
+         //    alert("!");
+         //});
      })
     .on("click", ".remove-command", function () {
         app.remove();
@@ -640,33 +688,38 @@ $(function () {
         //});
     })
      .on("click", ".cancel-error-command", function () {
-            app.hideError();
-        })
+         app.hideError();
+     })
      .on("click", ".cancel-command", function () {
-        $('#addNewPoint').foundation('reveal', 'close');
-        //console.log(
-        $.observable(app.items).remove(app.items.indexOf(app.selectedPoint));
-        hideRightPanel();
-        app.selectPoint(null);
-    })
+         $('#addNewPoint').foundation('reveal', 'close');
+         //console.log(
+         $.observable(app.items).remove(app.items.indexOf(app.selectedPoint));
+         hideRightPanel();
+         app.selectPoint(null);
+     })
      .on("click", ".ok-command", function () {
          var self = this;
          $('#addNewPoint').foundation('reveal', 'close');
-         window.setTimeout(function () { 
-         ensureAuthenticate()
-             .then(function (n) {
-                 showRightPanel();
-             })
-             .fail(function () {
-                 $.observable(app.items).remove(app.items.indexOf(app.selectedPoint));
-                 hideRightPanel();
-                 app.selectPoint(null);
-             });
+         window.setTimeout(function () {
+             ensureAuthenticate()
+                 .then(function (n) {
+                     showRightPanel();
+                 })
+                 .fail(function () {
+                     $.observable(app.items).remove(app.items.indexOf(app.selectedPoint));
+                     hideRightPanel();
+                     app.selectPoint(null);
+                 });
          }, 300);
+     });
+    $(document).on("click", ".popup-container", function () {
+        alert("!");
+        app.showEditor();
     });
 
+
     $('#editModeSwitch').click(function (evt) {
-        $.observable(app).setProperty("editMode", !app.editMode);
+        app.toggleEditMode();
         evt.stopPropagation();
     });
 
@@ -715,6 +768,10 @@ $(function () {
 
     indicator = new $data.NetworkIndicator();
     indicator.addTo(lmap);
+
+
+    editModeSwitch = new $data.EditMode({ app: app });
+    editModeSwitch.addTo(lmap);
 
     app.pins = visiblePins;
     window.setTimeout(function () {
