@@ -13,10 +13,10 @@
 
     <title>HyperLocal</title>
     <script src="js/vendor/custom.modernizr.js"></script>
-    <link rel="stylesheet" href="css.css" />
+<!--    <link rel="stylesheet" href="css.css" />-->
     <link href="css/circle-menu.css" rel="stylesheet" />
 <!--    <link href="css/accessibility_foundicons.css" rel="stylesheet" />-->
-<!--    <link rel="stylesheet" href="css/normalize.css" />
+    <link rel="stylesheet" href="css/normalize.css" />
     <link rel="stylesheet" href="css/foundation.css" />
     <link rel="stylesheet" href="css/general_foundicons.css" />
 
@@ -29,7 +29,7 @@
     <link href="leafletjs/cluster.css" rel="stylesheet" />
     <link href="leafletjs/L.Control.Locate.css" rel="stylesheet" />
     <link href="js/toastr.css" rel="stylesheet" />
-    <link href="js/toastr-responsive.css" rel="stylesheet" />-->
+    <link href="js/toastr-responsive.css" rel="stylesheet" />
     <style>
         .leaflet-control-network {
             width:22px;
@@ -79,12 +79,13 @@
         }
 
         .menu {
-            left: 50px;
-            z-index:6000;
+            right:30px;
+            bottom: 65px;
+            z-index:4500;
         }
 
         .menu a {
-                        -webkit-tap-highlight-color: rgba(0,0,0,0);  
+            -webkit-tap-highlight-color: rgba(0,0,0,0);  
         }
 
         .menu li {
@@ -121,14 +122,14 @@
 			    <form>
 				    <div class="row">
 					    <div class="large-12 columns box-padding-medium">
-						    <div class="row collapse">
+						    <div class="row collapse" id="searchPanel">
 							    <div class="small-12 columns relative">
 								    <i class="general foundicon-search absolute"></i>
                                     <input type="text" id="searchInput" class="input-search" data-link="query" placeholder="Search here...">
                                     <div class="abs-right color-gray">{^{> items.length}} /  {^{> totalCount}}</div>
 							    </div>
 						    </div>
-						    <div class="row collapse relative overscroll">
+						    <div class="row collapse relative scroll" id="listPanel">
                                 <div id="listcontainer">
                                     {{include tmpl="#poiListTemplate"/}}
                                 </div>
@@ -143,7 +144,9 @@
 			    <!--<i class="gen-enclosed foundicon-location toggle-map show-for-small" onclick="toggleMap()"></i>-->
 
                 <div id="map" class="map">
-                    <ul class="menu mymenu" id="menu">
+
+			    </div>
+                <ul class="menu mymenu show-for-touch" id="menu">
                         <li><a class="menu-link" href="#"></a></li>
                         <li id="zoomIn"><a class="menu-link" id="zoomInHref" href="#">+</a></li>
                         <li id="zoomOut"><a class="menu-link" href="#" id="zoomOutHref">-</a></li>
@@ -151,11 +154,11 @@
                             <span class="foundicon-edit"></span>
                         </li>
                         <li class="active-menu toggle-map foundicon-search" onclick="toggleMap()"></li>
+                        <li id="locateMe"><a class="menu-link foundicon-location" href="#"></a></li>
                     </ul>
-			    </div>
 		    </div>
 
-		    <div class="box-padding-high box-white right-panel hidden box-shadow overscroll">
+		    <div id="editorPanel" class="box-padding-high box-white right-panel hidden box-shadow overscroll">
 	         <i class="foundicon-remove absolute button medium close-editor-command"></i>
             <div id="poiEditor">
                 {{include tmpl="#poiEditorTemplate"/}}
@@ -381,10 +384,10 @@
     <script src="js/foundation.min.js"></script>
     <script src="js/vendor/iscroll.js"></script>
 
-    <script src="leafletjs/leaflet.js"></script>
+    <script src="leafletjs/053/leaflet.js"></script>
     <script src="leafletjs/leaflet.awesome-markers.js"></script>
     <script src="leafletjs/BingLayer.js"></script>
-    <script src="leafletjs/latest/cluster.js"></script>
+    <script src="leafletjs/053/cluster.js"></script>
     <script src="TraceLayer.js"></script>
     <script src="OptionsLayer.js"></script>
     <script src="leafletjs/L.Control.Locate.js"></script>

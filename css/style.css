@@ -41,11 +41,15 @@ body {
 .reveal-modal-bg {
 	z-index: 3200 !important;
 }
-
+.scroll {
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
 .overscroll {
 	overflow-y: scroll;
 	overflow-x: hidden;
-	-webkit-overflow-scrolling: touch;
+	/*zp touch*/
+    -webkit-overflow-scrolling: touch;
 }
 
 /*================================================================= RIGHT COLUMN =================================================================*/

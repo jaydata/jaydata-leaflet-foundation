@@ -47,6 +47,8 @@ function search(options) {
 
     url = "http://hyperlocal.redth.info/search?" + getAsQueryString(query);
 
+    var addingPoints = 0;
+
     if (options.app) {
         var app = options.app;
         var indi = indicator.beginProcess();
@@ -61,19 +63,30 @@ function search(options) {
             if (options.type === "new") {
                 app.removeAllPoints();
             } else {
-                app.removeInvisiblePoints();
+                //app.removeInvisiblePoints();
             }
             
+            var newPoints = [];
             x.results.forEach(function (p) {
                 if (!app.pointIndex[p.record.id]) {
-                    $.observable(app.items).insert(app.items.length, p);
+                    newPoints.push(p);
                 } else {
                     //console.log("not adding:" + p.record_id);
                 }
             });
+            
+            function pushTen() {
+                var ten = newPoints.splice(0, 10);
+                $.observable(app.items).insert(app.items.length, ten);
+                if (newPoints.length > 0) {
+                    addingPoints  = window.setTimeout(pushTen, 10);
+                }
+            }
+            addingPoints = window.setTimeout(pushTen, 10);
+
             $.observable(app).setProperty("totalCount", x.results_found);
             //console.log(x.limit, x.results_found);
-            if (!L.Browser.mobile && options.type !== "followup" && (options.app.items.length < x.results_found)) {
+            if (options.type !== "followup" && (options.app.items.length < x.results_found)) {
                 var newOpts = $.extend({}, options);
                 newOpts.limit = 100;
                 newOpts.type = "followup";
@@ -92,6 +105,7 @@ function search(options) {
 
 var searchQ = [];
 
+var Settings = $data.define
 
 search.enqueue = function (s, timeout) {
     if (!timeout) {
@@ -205,7 +219,8 @@ var app = {
         });
     },
     removeAllPoints: function() {
-        $.observable(app.items).remove(0, app.items.length);
+        $.observable(app).setProperty("items", []);
+        //$.observable(app.items).remove(0, app.items.length);
     },
     pointIndex: {},
     query: "Rest",
@@ -447,38 +462,42 @@ var pointApi = {
 
 }
 
-
-$([app.items]).bind("arrayChange", function (evt, o) {
-    switch (o.change) {
-        case "insert":
-            var markers = [];
-            o.items.forEach(function (p) {
-                //if (!app.pointIndex[p.record_id]) {
+$.observable(app).observe("items", function () {
+    console.log("items changed!", arguments);
+    $([app.items]).bind("arrayChange", function (evt, o) {
+        switch (o.change) {
+            case "insert":
+                var markers = [];
+                o.items.forEach(function (p) {
+                    //if (!app.pointIndex[p.record_id]) {
                     app.pointIndex[p.record.id] = p;
                     markers.push(pointApi.createMarkerFromPoint(p));
-                //}
-            });
-            visiblePins.addLayers(markers);
-            break;
-        case "remove":
-            o.items.forEach(function (item) {
-                delete app.pointIndex[item.record.id];
-                if (item.removeFromMap) {
-                    item.removeFromMap();
-                } else {
-                    console.dir("!!!");
-                }
-                if (item === app.selectedPoint) {
-                    app.selectPoint(null);
-                    app.hideEditor();
-                }
-            });
-            break;
-        default:
-            alert("!");
-            throw "unknown";
-    };
+                    //}
+                });
+                visiblePins.addLayers(markers);
+                break;
+            case "remove":
+                o.items.forEach(function (item) {
+                    delete app.pointIndex[item.record.id];
+                    if (item.removeFromMap) {
+                        item.removeFromMap();
+                    } else {
+                        console.dir("!!!");
+                    }
+                    if (item === app.selectedPoint) {
+                        app.selectPoint(null);
+                        app.hideEditor();
+                    }
+                });
+                break;
+            default:
+                alert("!");
+                throw "unknown";
+        };
+    });
+
 });
+
 
 
 
@@ -515,27 +534,27 @@ function startService() {
             var timer;
             service = mydatabase;
             lmap.on('click', function (e) {
-                window.clearTimeout(timer);
-                timer = window.setTimeout(function () {
-                    //var g = new mydatabase.HyperLocal.elementType();
-                    var r = {
-                        lon: e.latlng.lng,
-                        lat: e.latlng.lat,
-                        attribution: "Created by MapPointEditor, (c) JayStack inc.",
-                        z: "HYP3RL0C4LZZZ",
-                        id: $data.createGuid().toString()
-                    };
+                if (!app.editMode) { return };
+                var r = {
+                    lon: e.latlng.lng,
+                    lat: e.latlng.lat,
+                    attribution: "Created by MapPointEditor, (c) JayStack inc.",
+                    z: "HYP3RL0C4LZZZ",
+                    id: $data.createGuid().toString()
+                };
 
-                    var p = {
-                        isNew: true,
-                        record: r
-                    };
+                var p = {
+                    isNew: true,
+                    record: r
+                };
 
-                    $.observable(app.items).insert(0, p);
-                    app.selectPoint(p);
-                    $.observable(app).setProperty("newAddress", null);
-                    hideRightPanel();
-                    $('#addNewPoint').foundation('reveal', 'open');
+                $.observable(app.items).insert(0, p);
+                app.selectPoint(p);
+                $.observable(app).setProperty("newAddress", null);
+                //hideRightPanel();
+                //$('#addNewPoint').foundation('reveal', 'open');
+                app.showEditor();
+                window.setTimeout(function () {
                     mydatabase.reverse(e.latlng).then(function (r) {
                         //console.dir(r.Results[0]);
                         var theAddress = r.Results[0].Address;
@@ -548,7 +567,7 @@ function startService() {
                             "selectedPoint.record.postal": theAddress.PostalCode
                         });
                     });
-                }, 250);
+                }, 100);
             });
             lmap.on('dblclick', function (e) {
                 //trace.logLine("!!");
@@ -577,9 +596,6 @@ $(function () {
 
 
     $.link.mainTemplate('#row-full', app)
-     .on('click', '#editModeSwitch', function(evt) {
-         $.observable(app).setProperty("editMode", !app.editMode);
-     })
     .on("click", ".main-list > li", function () {
          var selectedItem = $.view(this);
          app.selectItem(selectedItem);
@@ -649,6 +665,11 @@ $(function () {
          }, 300);
     });
 
+    $('#editModeSwitch').click(function (evt) {
+        $.observable(app).setProperty("editMode", !app.editMode);
+        evt.stopPropagation();
+    });
+
     $('#zoomInHref').click(function (evt) {
         lmap.zoomIn();
         evt.preventDefault();
@@ -667,6 +688,15 @@ $(function () {
         return false;
     });
 
+    $('#locateMe').click(function (evt) {
+        locator.toggleState();
+        evt.preventDefault();
+        evt.cancelBubble = true;
+        evt.result = false;
+        evt.returnValue = false;
+        return false;
+    });
+
     bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
     lmap = new L.Map('map', {
         center: new L.LatLng(40.72121341440144, -74.00126159191132),
@@ -676,11 +706,16 @@ $(function () {
     });
     lmap.attributionControl.addAttribution("JayStack.com ©");
     var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
+
     trace = new $data.LeafletTrace();
     trace.addTo(lmap);
-    L.control.locate().addTo(lmap);
+
+    locator = L.control.locate();
+    locator.addTo(lmap);
+
     indicator = new $data.NetworkIndicator();
     indicator.addTo(lmap);
+
     app.pins = visiblePins;
     window.setTimeout(function () {
         lmap.addLayer(bing);
@@ -690,9 +725,9 @@ $(function () {
 
 
     $('#menu').circleMenu({
-        item_diameter: 40,
-        circle_radius: 90,
-        direction: 'top-right',
+        item_diameter: 55,
+        circle_radius: 160,
+        direction: 'top-left',
         trigger: 'click',
         select: function (evt, item) {
             var args = arguments;

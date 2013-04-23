@@ -13,15 +13,7 @@
         //this._initLayout();
         //this._update();
 
-        //map
-		//    .on('layeradd', this._onLayerChange, this)
-		//    .on('layerremove', this._onLayerChange, this);
         var container = this._container = L.DomUtil.create('div', 'leaflet-bar leaflet-control-network');
-        //$(container).append("<button>Press me</button>");
-        //$(container).on("click", function() {
-        //    swiper.prev();
-        //})
-        //$(container).html('<b>!</b>');
         console.log(container);
         return container;
     },

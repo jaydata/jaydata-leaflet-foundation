@@ -33,22 +33,26 @@ window.resizeUI = function resizeUI() {
         windowWidth = window.innerWidth,
         windowHeight = window.innerHeight;
 
-    document.getElementById('menu').style.top = (window.innerHeight - 100) + "px";
-
+    document.getElementById('editorPanel').style.height = windowHeight + "px";
 
     if (windowWidth < 480) {
+        alert(windowWidth);
         if (left.hasClass("open")) {
             mapHtml.style.height = (windowHeight - 250) + "px";
             large9.style.height = (windowHeight - 250) + "px";
+            document.querySelectorAll(".row.collapse.relative")[0].style.height = (windowHeight - 250) + "px";
         } else {
             mapHtml.style.height = windowHeight + "px";
             large9.style.height = windowHeight + "px";
+            document.querySelectorAll(".row.collapse.relative")[0].style.height = (windowHeight) + "px";
         }
         mapHtml.style.width = windowWidth + "px";
         large9.style.width = windowWidth + "px";
         left[0].removeAttribute("style");
+        
     }
     else if (windowWidth >= 480 && windowWidth <= 768) {
+
         if (left.hasClass("open")) {
             mapHtml.style.width = (windowWidth - $(".left-column").width()) + "px";
             large9.style.width = (windowWidth - $(".left-column").width() - 1) + "px";
@@ -58,11 +62,13 @@ window.resizeUI = function resizeUI() {
             large9.style.width = windowWidth + "px";
         }
         mapHtml.style.height = windowHeight + "px";
+        large9.style.height = windowHeight + "px";
         document.querySelectorAll(".row.collapse.relative")[0].style.height = (windowHeight - 67) + "px";
     }
     else {
         mapHtml.style.width = (windowWidth - left.width()) + "px";
         mapHtml.style.height = windowHeight + "px";
+        large9.style.height = windowHeight + "px";
         left[0].style.height = windowHeight + "px";
         document.querySelectorAll(".row.collapse.relative")[0].style.height = (windowHeight - 67) + "px";
     }
@@ -73,6 +79,5 @@ window.resizeUI = function resizeUI() {
 window.toggleMap = function toggleMap() {
     $(".left-column").toggleClass("open");
     $(".map").toggleClass("open");
-
     resizeUI();
 }

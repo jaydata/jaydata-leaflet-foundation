@@ -4497,7 +4497,7 @@ body {
 .overscroll {
 	overflow-y: scroll;
 	overflow-x: hidden;
-	-webkit-overflow-scrolling: touch;
+	/*-webkit-overflow-scrolling: touch;*/
 }
 
 /*================================================================= RIGHT COLUMN =================================================================*/

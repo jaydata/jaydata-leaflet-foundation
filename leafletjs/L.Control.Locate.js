@@ -61,27 +61,32 @@ L.Control.Locate = L.Control.extend({
             }
         };
 
+
+        function toggleState() {
+            if (self._active && (map.getBounds().contains(self._event.latlng) || !self.options.setView)) {
+                stopLocate();
+            } else {
+                if (self.options.setView) {
+                    self._locateOnNextLocationFound = true;
+                }
+                if(!self._active) {
+                    map.locate(self._locateOptions);
+                }
+                self._active = true;
+                if (!self._event) {
+                    self._container.className = classNames + " requesting";
+                } else {
+                    visualizeLocation();
+                }
+            }
+        };
+
+        self.toggleState = toggleState;
+
         L.DomEvent
             .on(link, 'click', L.DomEvent.stopPropagation)
             .on(link, 'click', L.DomEvent.preventDefault)
-            .on(link, 'click', function () {
-                if (self._active && (map.getBounds().contains(self._event.latlng) || !self.options.setView)) {
-                    stopLocate();
-                } else {
-                    if (self.options.setView) {
-                        self._locateOnNextLocationFound = true;
-                    }
-                    if(!self._active) {
-                        map.locate(self._locateOptions);
-                    }
-                    self._active = true;
-                    if (!self._event) {
-                        self._container.className = classNames + " requesting";
-                    } else {
-                        visualizeLocation();
-                    }
-                }
-            })
+            .on(link, 'click', toggleState)
             .on(link, 'dblclick', L.DomEvent.stopPropagation);
 
         var onLocationFound = function (e) {
