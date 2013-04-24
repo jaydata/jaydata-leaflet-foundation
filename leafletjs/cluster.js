@@ -273,10 +273,6 @@
 
         //Returns true if the given layer is in this MarkerClusterGroup
         hasLayer: function (layer) {
-            if (layer._noHas) {
-                return false;
-            }
-
             if (this._needsClustering.length > 0) {
                 var anArray = this._needsClustering;
                 for (var i = anArray.length - 1; i >= 0; i--) {
@@ -1036,9 +1032,7 @@
                 this._backupLatlng = this._latlng;
                 this.setLatLng(startPos);
             }
-            this._noHas = true;
             L.FeatureGroup.prototype.addLayer.call(this._group, this);
-            delete this._noHas;
         },
 
         _recursivelyAnimateChildrenIn: function (bounds, center, maxZoom) {
@@ -1117,9 +1111,7 @@
                             nm.setOpacity(0);
                         }
 
-                        nm._noHas = true;
                         L.FeatureGroup.prototype.addLayer.call(c._group, nm);
-                        delete nm._noHas;
                     }
                 },
                 function (c) {
@@ -1176,9 +1168,7 @@
                     for (i = c._childClusters.length - 1; i >= 0; i--) {
                         m = c._childClusters[i];
                         if (!exceptBounds || !exceptBounds.contains(m._latlng)) {
-                            if (L.FeatureGroup.prototype.hasLayer.call(c._group, m)) {
-                                L.FeatureGroup.prototype.removeLayer.call(c._group, m);
-                            }
+                            L.FeatureGroup.prototype.removeLayer.call(c._group, m);
                             m.setOpacity(1);
                         }
                     }
@@ -1651,9 +1641,7 @@
                 m.setZIndexOffset(1000000); //Make these appear on top of EVERYTHING
                 m.setOpacity(0);
 
-                m._noHas = true;
                 L.FeatureGroup.prototype.addLayer.call(group, m);
-                delete m._noHas;
 
                 m._setPos(thisLayerPos);
             }
