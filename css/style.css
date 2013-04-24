@@ -54,9 +54,14 @@ body.ios .overscroll {
 	-webkit-overflow-scrolling: touch;
 }
 
-.menu li {
-	background: #1F1F1F;
-}
+.menu li:first-child 		{ background-image: none; background-color: #041329; }
+.menu li:first-child:before { font-size: 25px;position: relative; left: 0; top: -2px; }
+
+.menu li.menu-zoom-in 		{ background: #70A3EF !important; }
+.menu li.menu-zoom-out 		{ background: #4285EA !important; }
+.menu li.menu-edit      	{ background: #165ECA !important; }
+.menu li.menu-search 		{ background: #0E3E85 !important; }
+.menu li.menu-map 			{ background: #092857 !important; }
 
 .toast {
 	min-height: 60px;

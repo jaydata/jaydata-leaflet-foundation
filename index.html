@@ -177,14 +177,14 @@
 
 			    </div>
                 <ul class="menu mymenu show-for-touch2" id="menu">
-                    <li><a class="menu-link" href="#"></a></li>
-                    <li id="zoomIn"><a class="menu-link" id="zoomInHref" href="#">+</a></li>
-                    <li id="zoomOut"><a class="menu-link" href="#" id="zoomOutHref">-</a></li>
-                    <li id="editModeSwitch" data-link="class{: ~app.editMode ? 'active-menu' : ''}">
+                    <li class="foundicon-settings"></li>
+                    <li id="zoomIn" class="menu-zoom-in"><a class="menu-link foundicon-plus" id="zoomInHref" href="#"></a></li>
+                    <li id="zoomOut" class="menu-zoom-out"><a class="menu-link foundicon-minus" href="#" id="zoomOutHref"></a></li>
+                    <li id="editModeSwitch" data-link="class{: ~app.editMode ? 'active-menu menu-edit' : 'menu-edit' }">
                         <a class="foundicon-edit"></a>
                     </li>
-                    <li onclick="toggleMap()"><a class="foundicon-search" href="#"></a></li>
-                    <li id="locateMe"><a class="menu-link foundicon-location" href="#"></a></li>
+                    <li onclick="toggleMap()" class="menu-search"><a class="foundicon-search" href="#"></a></li>
+                    <li id="locateMe" class="menu-map"><a class="menu-link foundicon-location" href="#"></a></li>
                 </ul>
 		    </div>
 
