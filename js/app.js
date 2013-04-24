@@ -38,7 +38,7 @@ function search(options) {
     }
 
     $.extend(query, {
-        q: options.q,
+        q: options.q || 'hyp',
         limit: options.limit || 100,
         fuzzy: options.fuzzy || 0,
         start: options.start || 0
