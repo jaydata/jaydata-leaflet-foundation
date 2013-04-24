@@ -447,9 +447,14 @@
             }
         });
 
-        var iOS = ( navigator.userAgent.toLowerCase().match(/(ipad|iphone|ipod)/g) ? true : false );
+        var iOS = ( navigator.userAgent.toLowerCase().match(/(ipad|iphone|ipod)/g) ? true : false ),
+            android = ( navigator.userAgent.toLowerCase().match(/(android)/g) ? true : false );
+            
         if (iOS){
             $("body").addClass("ios");
+        }
+        if (android){
+            $("body").addClass("android");
         }
     </script>
 </body>
