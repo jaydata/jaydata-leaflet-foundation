@@ -159,7 +159,7 @@
                                     </div>
 							    </div>
 						    </div>
-						    <div class="row collapse relative overscroll scroll" id="listPanel">
+						    <div class="row collapse relative overscroll" id="listPanel">
                                 <div id="listcontainer">
                                     {{include tmpl="#poiListTemplate"/}}
                                 </div>
@@ -449,7 +449,7 @@
 
         var iOS = ( navigator.userAgent.toLowerCase().match(/(ipad|iphone|ipod)/g) ? true : false ),
             android = ( navigator.userAgent.toLowerCase().match(/(android)/g) ? true : false );
-            
+
         if (iOS){
             $("body").addClass("ios");
         }
