@@ -83,6 +83,22 @@
             lmap.attributionControl.addAttribution("JayStack.com ©");
             var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
             bing.addTo(lmap);
+            var l;
+            lmap.on("click", function (e) {
+                var gh = encodeGeoHash(e.latlng.lat, e.latlng.lng);
+                var gh_pref = gh.substr(0, 7);
+                if (l) { lmap.removeLayer(l); }
+                l = L.layerGroup();
+                gc.GeoRows.filter("it.geoHash.substr(1,7) === gh", { gh: gh_pref }).take(20)
+                  .forEach(function (item) {
+                      var m = L.marker([item.lat, item.lon]);
+                      l.addLayer(m);
+                  }).then(function () {
+                      lmap.addLayer(l);
+                  });
+
+            });
+
         });
 
         function getAsQueryString(o) {
@@ -121,7 +137,7 @@
 
             $.extend(query, {
                 q: options.q || 'hyp3r',
-                limit: options.limit || 300,
+                limit: options.limit || 1000,
                 fuzzy: options.fuzzy || 0,
                 start: options.start || 0
             });
@@ -149,11 +165,17 @@
 
         var gc = new GeoContext({ provider: 'local' });
 
+        var savedTotal = 0;
+
         function doSearch(options) {
+
+            var gc = new GeoContext({ provider: 'local' });
 
             search(options).then(function (result) {
                 console.log(result);
+
                 var localData = [];
+                $('#output').append("<li>Downloaded: " + (result.offset + 1000) + "</li>");
 
                 result.results.forEach(function (r) {
                     localData.push({
@@ -166,21 +188,22 @@
                 });
 
                 gc.GeoRows.addMany(localData);
+
                 gc.saveChanges().then(function () {
-                    //var html = $('#poiList').render(localData);
-                    //$('#list').html(html);
-                    if (result.offset < result.results_found) {
-                        options.start += 300;
-                        doSearch(options);
-                    }
-                    $('#output').append("<li>Done: " + (result.offset + 300) + "</li>");
+                    $('#output').append("<li>Saved: " + (savedTotal += 1000) + "</li>");
                 }).fail(function (e) {
                     $('#output').html(JSON.stringify(e));
                 });
 
 
+                if (result.offset < result.results_found) {
+                    options.start += 1000;
+                    doSearch(options);
+                }
+
             });
         }
+
         $.when(gc.ready).then(function () {
             $('#getData').on('click', function () {
                 doSearch({ bounds: lmap.getBounds(), start: 0 });
