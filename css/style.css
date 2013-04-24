@@ -48,8 +48,18 @@ body {
 .overscroll {
 	overflow-y: scroll;
 	overflow-x: hidden;
-	/*zp touch*/
-    -webkit-overflow-scrolling: touch;
+}
+
+body.ios .overscroll {
+	-webkit-overflow-scrolling: touch;
+}
+
+.menu li {
+	background: #1F1F1F;
+}
+
+.toast {
+	min-height: 60px;
 }
 
 /*================================================================= RIGHT COLUMN =================================================================*/
@@ -194,7 +204,7 @@ body {
 	.large-9 { overflow: hidden; }
 	.map { min-height: 200px; width: 100%; }
 
-	#wrapper {
+	.main-list {
 		max-height: 180px;
 	}
 }

@@ -159,7 +159,7 @@
                                     </div>
 							    </div>
 						    </div>
-						    <div class="row collapse relative scroll" id="listPanel">
+						    <div class="row collapse relative overscroll scroll" id="listPanel">
                                 <div id="listcontainer">
                                     {{include tmpl="#poiListTemplate"/}}
                                 </div>
@@ -176,16 +176,16 @@
                 <div id="map" class="map">
 
 			    </div>
-                <ul class="menu mymenu show-for-touch" id="menu">
-                        <li><a class="menu-link" href="#"></a></li>
-                        <li id="zoomIn"><a class="menu-link" id="zoomInHref" href="#">+</a></li>
-                        <li id="zoomOut"><a class="menu-link" href="#" id="zoomOutHref">-</a></li>
-                        <li id="editModeSwitch" data-link="class{: ~app.editMode ? 'active-menu' : ''}">
-                            <span class="foundicon-edit"></span>
-                        </li>
-                        <li class="toggle-map foundicon-search" onclick="toggleMap()"></li>
-                        <li id="locateMe"><a class="menu-link foundicon-location" href="#"></a></li>
-                    </ul>
+                <ul class="menu mymenu show-for-touch2" id="menu">
+                    <li><a class="menu-link" href="#"></a></li>
+                    <li id="zoomIn"><a class="menu-link" id="zoomInHref" href="#">+</a></li>
+                    <li id="zoomOut"><a class="menu-link" href="#" id="zoomOutHref">-</a></li>
+                    <li id="editModeSwitch" data-link="class{: ~app.editMode ? 'active-menu' : ''}">
+                        <a class="foundicon-edit"></a>
+                    </li>
+                    <li onclick="toggleMap()"><a class="foundicon-search" href="#"></a></li>
+                    <li id="locateMe"><a class="menu-link foundicon-location" href="#"></a></li>
+                </ul>
 		    </div>
 
 		    <div id="editorPanel" class="box-padding-high box-white right-panel hidden box-shadow overscroll">
@@ -404,7 +404,7 @@
     </script>
 
     <script src="js/socket.io.js"></script>
-<!--    <script src="js/vendor/jquery2b3.js"></script>
+    <script src="js/vendor/jquery2b3.js"></script>
     <script src="js/toastr.js"></script>
     <script src="js/vendor/jsrender.js"></script>
     <script src="js/vendor/jquery.observable.js"></script>
@@ -425,8 +425,8 @@
     <script src="js/hello.min.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/app.js"></script>-->
-    <script src="js.js"></script>
+    <script src="js/app.js"></script>
+    <!--<script src="js.js"></script>-->
 
     <script>
         $(document).foundation().foundation('reveal', {
@@ -446,7 +446,11 @@
                 }
             }
         });
-        
+
+        var iOS = ( navigator.userAgent.toLowerCase().match(/(ipad|iphone|ipod)/g) ? true : false );
+        if (iOS){
+            $("body").addClass("ios");
+        }
     </script>
 </body>
 </html>
