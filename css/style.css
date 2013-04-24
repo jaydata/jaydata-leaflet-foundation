@@ -74,6 +74,8 @@ body.android .menu li:first-child:before {
 .menu li.menu-search 			{ background: #0E3E85 !important; }
 .menu li.menu-map 				{ background: #092857 !important; }
 
+.icon-screenshot:before 		{ font-size: 31px; position: relative; top: 2px; left: -7px; }
+
 .menu li.menu-edit.active-menu 	{ 
 	background: orange !important; 
 	border: 2px solid #fff; 
