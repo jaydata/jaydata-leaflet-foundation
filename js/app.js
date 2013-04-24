@@ -49,6 +49,9 @@ function search(options) {
 
     var addingPoints = 0;
 
+    var visibleLayers = [];
+
+
     if (options.app) {
         var app = options.app;
         var indi = indicator.beginProcess();
@@ -63,6 +66,7 @@ function search(options) {
             if (options.type === "new") {
                 app.removeAllPoints();
             } else {
+                //app.removeAllPoints();
                 //app.removeInvisiblePoints();
             }
             
@@ -76,10 +80,12 @@ function search(options) {
             });
             
             if (L.Browser.mobile) {
-                window.webkitRequestAnimationFrame(function () {
-                });
                 function pushTen() {
-
+                    //opt1
+                    var newLayer = L.MarkerClusterGroup();
+                    visibleLayers.push(newLayer);
+                    app.currentLayer = newLayer;
+                    //opt1
                     var ten = newPoints.splice(0, 20);
                     if (!mapIsDragging) {
                         $.observable(app.items).insert(app.items.length, ten);
@@ -90,8 +96,6 @@ function search(options) {
                 }
                 addingPoints = window.webkitRequestAnimationFrame(pushTen);
             } else {
-                window.webkitRequestAnimationFrame(function () {
-                });
                 $.observable(app.items).insert(app.items.length, newPoints);
             }
             $.observable(app).setProperty("totalCount", x.results_found);
@@ -231,10 +235,13 @@ var app = {
             $.observable(app.items).remove(idx);
         });
     },
-    removeAllPoints: function() {
+    removeAllPoints: function () {
+        $.observable(app).setProperty("pointIndex", {});
         $.observable(app).setProperty("items", []);
+        visiblePins.clearLayers();
         //$.observable(app.items).remove(0, app.items.length);
     },
+
     pointIndex: {},
     query: "Rest",
     selectedItem: null,
@@ -477,6 +484,8 @@ var pointApi = {
                     data[key] = encodeURIComponent(self.record[key]);
                 }
             })
+
+            p.getMarker().bindPopup(($('#popupTemplate').render(p)));
             if (self.isNew) {
                 return service
                         .create({ record: data, user: getUser() })
@@ -514,7 +523,9 @@ $.observable(app).observe("items", function () {
                     markers.push(pointApi.createMarkerFromPoint(p));
                     //}
                 });
+                //opt1
                 visiblePins.addLayers(markers);
+                //opt1
                 $.observable(app).setProperty("visibleCount", app.items.length);
                 break;
             case "remove":
@@ -630,6 +641,9 @@ function startService() {
                 }
             });
             lmap.on('zoomend', function (e) {
+                if (app.closingOn) {
+                    return;
+                }
                 indicator.setVisible(lmap.getZoom() >= 15);
                 if (lmap.getZoom() >= 15) {
                     doSearch("reposition", 1000);
@@ -649,7 +663,9 @@ $(function () {
         app.selectItem(selectedItem);
         var marker = $.view(this).data.getMarker();
         $('#searchInput').blur();
+        app.closingOn = true;
         visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
+            app.closingOn = false;
             marker.openPopup();
         });
         //lmap.panTo(marker.getLatLng());

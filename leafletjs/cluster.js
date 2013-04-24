@@ -13,7 +13,7 @@
     L.MarkerClusterGroup = L.FeatureGroup.extend({
 
         options: {
-            maxClusterRadius: 80, //A cluster will cover at most this many pixels from its center
+            maxClusterRadius: 40, //A cluster will cover at most this many pixels from its center
             iconCreateFunction: null,
 
             spiderfyOnMaxZoom: true,
@@ -21,7 +21,7 @@
             zoomToBoundsOnClick: true,
             singleMarkerMode: false,
 
-            disableClusteringAtZoom: null,
+            disableClusteringAtZoom: 19,
 
             // Setting this to false prevents the removal of any clusters outside of the viewpoint, which
             // is the default behaviour for performance reasons.
