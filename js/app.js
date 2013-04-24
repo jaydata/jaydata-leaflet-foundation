@@ -328,7 +328,7 @@ var app = {
                          }
                      })
                      .fail(function (args) {
-                         toastr.error(args)
+                         //toastr.error(args)
                          //alert('error');
                      });
     },
