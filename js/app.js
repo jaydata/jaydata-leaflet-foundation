@@ -47,9 +47,21 @@ function search(options) {
 
     url = "http://hyperlocal.redth.info/search?" + getAsQueryString(query);
 
-    var addingPoints = 0;
+    //var addingPoints = 0;
 
-    var visibleLayers = [];
+    ////var visibleLayers = [];
+    //var activeSearches = [];
+    function wireDownOptions(options) {
+        lmap.removeLayer(options.markerLayer);
+    }
+
+    function wireUpOptions(options) {
+        options.markerLayer = new L.MarkerClusterGroup();
+        options.points = []
+        $.observable(app).setProperty("items", options.points);
+        lmap.addLayer(options.markerLayer);
+        return options;
+    }
 
 
     if (options.app) {
@@ -63,42 +75,42 @@ function search(options) {
                 console.log("@@@@", "query outdated");
                 return;
             }
-            if (options.type === "new") {
-                app.removeAllPoints();
+            if (options.type !== "followup") {
+                if (app.currentOptions) {
+                    wireDownOptions(app.currentOptions);
+                }
+                app.currentOptions = wireUpOptions(options);
             } else {
                 //app.removeAllPoints();
                 //app.removeInvisiblePoints();
             }
-            
-            var newPoints = [];
+
+            var markers = [];
             x.results.forEach(function (p) {
-                if (!app.pointIndex[p.record.id]) {
-                    newPoints.push(p);
-                } else {
-                    //console.log("not adding:" + p.record_id);
-                }
+                markers.push(pointApi.createMarkerFromPoint(p));
             });
             
-            if (L.Browser.mobile) {
-                function pushTen() {
-                    //opt1
-                    var newLayer = L.MarkerClusterGroup();
-                    visibleLayers.push(newLayer);
-                    app.currentLayer = newLayer;
-                    //opt1
-                    var ten = newPoints.splice(0, 20);
-                    if (!mapIsDragging) {
-                        $.observable(app.items).insert(app.items.length, ten);
-                    }
-                    if (newPoints.length > 0) {
-                        addingPoints = window.webkitRequestAnimationFrame(pushTen);
-                    }
-                }
-                addingPoints = window.webkitRequestAnimationFrame(pushTen);
-            } else {
-                $.observable(app.items).insert(app.items.length, newPoints);
-            }
+            $.observable(options.points).insert(options.points.length, x.results);
+            options.markerLayer.addLayers(markers);
+
+            //if (L.Browser.mobile) {
+            //    function pushTen() {
+            //        //opt1
+            //        //opt1
+            //        var ten = newPoints.splice(0, 20);
+            //        if (!mapIsDragging) {
+            //            $.observable(app.items).insert(app.items.length, ten);
+            //        }
+            //        if (newPoints.length > 0) {
+            //            addingPoints = window.webkitRequestAnimationFrame(pushTen);
+            //        }
+            //    }
+            //    addingPoints = window.webkitRequestAnimationFrame(pushTen);
+            //} else {
+            //    $.observable(app.items).insert(app.items.length, newPoints);
+            //}
             $.observable(app).setProperty("totalCount", x.results_found);
+
             //console.log(x.limit, x.results_found);
             if (options.type !== "followup" && (options.app.items.length < x.results_found)) {
                 var newOpts = $.extend({}, options);
@@ -440,10 +452,6 @@ var pointApi = {
         p.getMarker = function () { return marker };
 
 
-
-        p.removeFromMap = function () {
-            visiblePins.removeLayer(marker);
-        }
         function getUser() {
             return { id: window.logedInUser.id, name: window.logedInUser.name } 
         }
@@ -513,44 +521,44 @@ var pointApi = {
 
 $.observable(app).observe("items", function () {
     console.log("items changed!", arguments);
-    $([app.items]).bind("arrayChange", function (evt, o) {
-        switch (o.change) {
-            case "insert":
-                var markers = [];
-                o.items.forEach(function (p) {
-                    //if (!app.pointIndex[p.record_id]) {
-                    app.pointIndex[p.record.id] = p;
-                    markers.push(pointApi.createMarkerFromPoint(p));
-                    //}
-                });
-                //opt1
-                visiblePins.addLayers(markers);
-                //opt1
-                $.observable(app).setProperty("visibleCount", app.items.length);
-                break;
-            case "remove":
-                var markers = [];
-                o.items.forEach(function (item) {
-                    delete app.pointIndex[item.record.id];
-                    markers.push(item.getMarker());
-                    //if (item.removeFromMap) {
-                    //    item.removeFromMap();
-                    //} else {
-                    //    console.dir("!!!");
-                    //}
-                    if (item === app.selectedPoint) {
-                        app.selectPoint(null);
-                        app.hideEditor();
-                    }
-                });
-                visiblePins.removeLayers(markers);
-                $.observable(app).setProperty("visibleCount", app.items.length);
-                break;
-            default:
-                alert("!");
-                throw "unknown";
-        };
-    });
+    //$([app.items]).bind("arrayChange", function (evt, o) {
+    //    switch (o.change) {
+    //        case "insert":
+    //            //var markers = [];
+    //            //o.items.forEach(function (p) {
+    //            //    //if (!app.pointIndex[p.record_id]) {
+    //            //    app.pointIndex[p.record.id] = p;
+    //            //    markers.push(pointApi.createMarkerFromPoint(p));
+    //            //    //}
+    //            //});
+    //            ////opt1
+    //            //visiblePins.addLayers(markers);
+    //            ////opt1
+    //            //$.observable(app).setProperty("visibleCount", app.items.length);
+    //            break;
+    //        case "remove":
+    //            var markers = [];
+    //            //o.items.forEach(function (item) {
+    //            //    delete app.pointIndex[item.record.id];
+    //            //    markers.push(item.getMarker());
+    //            //    //if (item.removeFromMap) {
+    //            //    //    item.removeFromMap();
+    //            //    //} else {
+    //            //    //    console.dir("!!!");
+    //            //    //}
+    //            //    if (item === app.selectedPoint) {
+    //            //        app.selectPoint(null);
+    //            //        app.hideEditor();
+    //            //    }
+    //            //});
+    //            //visiblePins.removeLayers(markers);
+    //            //$.observable(app).setProperty("visibleCount", app.items.length);
+    //            break;
+    //        default:
+    //            alert("!");
+    //            throw "unknown";
+    //    };
+    //});
 
 });
 
