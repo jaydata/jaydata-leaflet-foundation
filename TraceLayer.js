@@ -19,7 +19,7 @@
 		//    .on('layerremove', this._onLayerChange, this);
         var container = this._container = L.DomUtil.create('div', 'leaflet-control-options');
         
-        $(container).html('v0.99.111');
+        $(container).html('v0.99.234');
         console.log(container);
         return container;
     },
@@ -28,10 +28,10 @@
         return "JayData";
     },
     logLine: function(log) {
-        $(this._container).append("<div>" + log + "</div>");
+        //$(this._container).prepend("<div>" + log + "</div>");
     },
     log: function(log) {
-        $(this._container).append(log);
+        //$(this._container).append(log);
     },
 
 });

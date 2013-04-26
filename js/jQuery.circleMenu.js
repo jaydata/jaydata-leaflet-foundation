@@ -135,6 +135,7 @@
             $self = this.element,
             start = 0,
             set;
+        var setTimeout = window.webkitRequestAnimationFrame || window.setTimeout;
 
         self.clearTimeouts();
         if(self._state === 'open') return self;
@@ -148,6 +149,7 @@
         set.each(function(index){
             var $item = $(this);
 
+            //zpace
             self._timeouts.push(setTimeout(function(){
                 $item.css({
                     left: $item.data('plugin_'+pluginName+'-pos-x')+'px',
@@ -169,6 +171,7 @@
             do_animation = function do_animation(){
             var start = 0,
                 set;
+            var setTimeout = window.webkitRequestAnimationFrame || window.setTimeout;
 
             self.submenus.circleMenu('close');
             self.clearTimeouts();

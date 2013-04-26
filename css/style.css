@@ -65,6 +65,7 @@ body.android .menu li:first-child:before {
 	top: 1px;
 }
 
+.menu > li { -webkit-tap-highlight-color:rgba(0,0,0,0); }
 .menu li:first-child 			{ background-image: none; background-color: #041329; }
 .menu li:first-child:before 	{ font-size: 25px;position: relative; left: 0; top: -2px; }
 

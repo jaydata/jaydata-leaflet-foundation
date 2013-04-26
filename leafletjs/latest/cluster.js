@@ -57,9 +57,7 @@
             if (layer instanceof L.LayerGroup) {
                 var array = [];
                 for (var i in layer._layers) {
-                    if (layer._layers.hasOwnProperty(i)) {
-                        array.push(layer._layers[i]);
-                    }
+                    array.push(layer._layers[i]);
                 }
                 return this.addLayers(array);
             }
@@ -156,11 +154,9 @@
 
             //Update the icons of all those visible clusters that were affected
             for (i in this._layers) {
-                if (this._layers.hasOwnProperty(i)) {
-                    m = this._layers[i];
-                    if (m instanceof L.MarkerCluster && m._iconNeedsUpdate) {
-                        m._updateIcon();
-                    }
+                m = this._layers[i];
+                if (m instanceof L.MarkerCluster && m._iconNeedsUpdate) {
+                    m._updateIcon();
                 }
             }
 
@@ -199,11 +195,9 @@
             this._topClusterLevel._recursivelyAddChildrenToMap(null, this._zoom, this._currentShownBounds);
 
             for (i in this._layers) {
-                if (this._layers.hasOwnProperty(i)) {
-                    m = this._layers[i];
-                    if (m instanceof L.MarkerCluster) {
-                        m._updateIcon();
-                    }
+                m = this._layers[i];
+                if (m instanceof L.MarkerCluster) {
+                    m._updateIcon();
                 }
             }
 
@@ -221,15 +215,13 @@
                 delete this._gridUnclustered;
             }
 
-            if (this._unspiderfy) {
-                this._unspiderfy();
+            if (this._noanimationUnspiderfy) {
+                this._noanimationUnspiderfy();
             }
 
             //Remove all the visible layers
             for (var i in this._layers) {
-                if (this._layers.hasOwnProperty(i)) {
-                    L.FeatureGroup.prototype.removeLayer.call(this, this._layers[i]);
-                }
+                L.FeatureGroup.prototype.removeLayer.call(this, this._layers[i]);
             }
 
             this.eachLayer(function (marker) {
@@ -273,6 +265,10 @@
 
         //Returns true if the given layer is in this MarkerClusterGroup
         hasLayer: function (layer) {
+            if (layer._noHas) {
+                return false;
+            }
+
             if (this._needsClustering.length > 0) {
                 var anArray = this._needsClustering;
                 for (var i = anArray.length - 1; i >= 0; i--) {
@@ -376,9 +372,7 @@
 
             //Clean up all the layers we added to the map
             for (var i in this._layers) {
-                if (this._layers.hasOwnProperty(i)) {
-                    L.FeatureGroup.prototype.removeLayer.call(this, this._layers[i]);
-                }
+                L.FeatureGroup.prototype.removeLayer.call(this, this._layers[i]);
             }
 
             this._map = null;
@@ -792,12 +786,10 @@
             me._topClusterLevel._recursivelyBecomeVisible(bounds, newZoomLevel);
             //TODO Maybe? Update markers in _recursivelyBecomeVisible
             for (j in me._layers) {
-                if (me._layers.hasOwnProperty(j)) {
-                    n = me._layers[j];
+                n = me._layers[j];
 
-                    if (!(n instanceof L.MarkerCluster) && n._icon) {
-                        n.setOpacity(1);
-                    }
+                if (!(n instanceof L.MarkerCluster) && n._icon) {
+                    n.setOpacity(1);
                 }
             }
 
@@ -1032,7 +1024,9 @@
                 this._backupLatlng = this._latlng;
                 this.setLatLng(startPos);
             }
+            this._noHas = true;
             L.FeatureGroup.prototype.addLayer.call(this._group, this);
+            delete this._noHas;
         },
 
         _recursivelyAnimateChildrenIn: function (bounds, center, maxZoom) {
@@ -1111,7 +1105,9 @@
                             nm.setOpacity(0);
                         }
 
+                        nm._noHas = true;
                         L.FeatureGroup.prototype.addLayer.call(c._group, nm);
+                        delete nm._noHas;
                     }
                 },
                 function (c) {
@@ -1168,7 +1164,9 @@
                     for (i = c._childClusters.length - 1; i >= 0; i--) {
                         m = c._childClusters[i];
                         if (!exceptBounds || !exceptBounds.contains(m._latlng)) {
-                            L.FeatureGroup.prototype.removeLayer.call(c._group, m);
+                            if (!L.FeatureGroup.prototype.hasLayer || L.FeatureGroup.prototype.hasLayer.call(c._group, m)) {
+                                L.FeatureGroup.prototype.removeLayer.call(c._group, m);
+                            }
                             m.setOpacity(1);
                         }
                     }
@@ -1299,20 +1297,16 @@
                 grid = this._grid;
 
             for (i in grid) {
-                if (grid.hasOwnProperty(i)) {
-                    row = grid[i];
+                row = grid[i];
 
-                    for (j in row) {
-                        if (row.hasOwnProperty(j)) {
-                            cell = row[j];
+                for (j in row) {
+                    cell = row[j];
 
-                            for (k = 0, len = cell.length; k < len; k++) {
-                                removed = fn.call(context, cell[k]);
-                                if (removed) {
-                                    k--;
-                                    len--;
-                                }
-                            }
+                    for (k = 0, len = cell.length; k < len; k++) {
+                        removed = fn.call(context, cell[k]);
+                        if (removed) {
+                            k--;
+                            len--;
                         }
                     }
                 }
@@ -1572,6 +1566,31 @@
                 legLength += this._2PI * lengthFactor / angle;
             }
             return res;
+        },
+
+        _noanimationUnspiderfy: function () {
+            var group = this._group,
+                map = group._map,
+                childMarkers = this.getAllChildMarkers(),
+                m, i;
+
+            this.setOpacity(1);
+            for (i = childMarkers.length - 1; i >= 0; i--) {
+                m = childMarkers[i];
+
+                L.FeatureGroup.prototype.removeLayer.call(group, m);
+
+                if (m._preSpiderfyLatlng) {
+                    m.setLatLng(m._preSpiderfyLatlng);
+                    delete m._preSpiderfyLatlng;
+                }
+                m.setZIndexOffset(0);
+
+                if (m._spiderLeg) {
+                    map.removeLayer(m._spiderLeg);
+                    delete m._spiderLeg;
+                }
+            }
         }
     });
 
@@ -1602,24 +1621,7 @@
         },
 
         _animationUnspiderfy: function () {
-            var group = this._group,
-                map = group._map,
-                childMarkers = this.getAllChildMarkers(),
-                m, i;
-
-            this.setOpacity(1);
-            for (i = childMarkers.length - 1; i >= 0; i--) {
-                m = childMarkers[i];
-
-                L.FeatureGroup.prototype.removeLayer.call(group, m);
-
-                m.setLatLng(m._preSpiderfyLatlng);
-                delete m._preSpiderfyLatlng;
-                m.setZIndexOffset(0);
-
-                map.removeLayer(m._spiderLeg);
-                delete m._spiderLeg;
-            }
+            this._noanimationUnspiderfy();
         }
     } : {
         //Animated versions here
@@ -1641,7 +1643,9 @@
                 m.setZIndexOffset(1000000); //Make these appear on top of EVERYTHING
                 m.setOpacity(0);
 
+                m._noHas = true;
                 L.FeatureGroup.prototype.addLayer.call(group, m);
+                delete m._noHas;
 
                 m._setPos(thisLayerPos);
             }
@@ -1862,6 +1866,12 @@
         _unspiderfy: function (zoomDetails) {
             if (this._spiderfied) {
                 this._spiderfied.unspiderfy(zoomDetails);
+            }
+        },
+
+        _noanimationUnspiderfy: function () {
+            if (this._spiderfied) {
+                this._spiderfied._noanimationUnspiderfy();
             }
         },
 

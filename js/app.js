@@ -18,6 +18,10 @@ function getAsQueryString(o) {
 
 function search(options) {
     var query;
+    trace.logLine("search: v" + options.version);
+    if (options.app.lastSearch.version != options.version) {
+        console.log("outdated search");
+    }
 
     if (options.bounds) {
         var lb = options.bounds.getSouthWest();
@@ -58,8 +62,8 @@ function search(options) {
     function wireUpOptions(options) {
         options.markerLayer = new L.MarkerClusterGroup();
         options.points = []
+        options.pointIndex = {};
         $.observable(app).setProperty("items", options.points);
-        lmap.addLayer(options.markerLayer);
         return options;
     }
 
@@ -69,6 +73,10 @@ function search(options) {
         var indi = indicator.beginProcess();
         $.getJSON(url, function (x) {
             indi.complete();
+            trace.logLine("onresult: v" + options.version + " dragging:" + mapIsDragging);
+            if (mapIsDragging) {
+                return
+            };
             //console.log(x);
             console.log("result for: " + options.q);
             if ($('#searchInput').val() != options.q) {
@@ -91,7 +99,25 @@ function search(options) {
             });
             
             $.observable(options.points).insert(options.points.length, x.results);
-            options.markerLayer.addLayers(markers);
+
+            if (L.Browser.mobile) {
+                function addByChunk() {
+                    options.markerLayer.addLayers(markers);
+                    //var subset = markers.splice(0, 50);
+                    //if (!mapIsDragging) {
+                    //    options.markerLayer.addLayers(subset);
+                    //}
+                    //if (markers.length > 0) {
+                    //    window.webkitRequestAnimationFrame(addByChunk);
+                    //}
+                    trace.logLine("markers there  v" + options.version);
+                    options.markerLayer.addTo(lmap);
+                }
+                window.webkitRequestAnimationFrame(addByChunk);
+            } else {
+                options.markerLayer.addLayers(markers);
+                options.markerLayer.addTo(lmap);
+            }
 
             //if (L.Browser.mobile) {
             //    function pushTen() {
@@ -110,11 +136,11 @@ function search(options) {
             //    $.observable(app.items).insert(app.items.length, newPoints);
             //}
             $.observable(app).setProperty("totalCount", x.results_found);
-
+            $.observable(app).setProperty("visibleCount", app.items.length);
             //console.log(x.limit, x.results_found);
-            if (options.type !== "followup" && (options.app.items.length < x.results_found)) {
+            if (!L.Browser.mobile && options.type !== "followup" && (options.app.items.length < x.results_found)) {
                 var newOpts = $.extend({}, options);
-                newOpts.limit = 100;
+                newOpts.limit = (L.Browser.mobile ? 50 : 100);
                 newOpts.type = "followup";
                 newOpts.start = options.app.items.length;
                 newOpts.keepItems = true;
@@ -194,11 +220,13 @@ function dispatchMsg(data) {
         case "new":
             var toast = toastr.info(data.senderName + " created " + data.msg.record.name, "Created");
             var p = data.msg;
-            if (!app.pointIndex[p.record.id]) {
+            //if (!app.pointIndex[p.record.id]) {
                 $.observable(app.items).insert(app.items.length, p);
-            }
+                app.currentOptions.markerLayer.addLayer(pointApi.createMarkerFromPoint(p));
+            //}
             toast.on("click", function () {
-                lmap.panTo([p.record.lat, p.record.lon]);
+                app.currentOptions.markerLayer.zoomToShowLayer(p.getMarker());
+                //lmap.panTo([p.record.lat, p.record.lon]);
             });
             break;
         case "delete":
@@ -292,6 +320,7 @@ var app = {
         $('#opError').foundation('reveal', 'close');
     },
     save: function () {
+        app.selectedPoint.getMarker().closePopup();
         ensureAuthenticate()
                      .then(function (n) {
                          //if (!window.logedInUser) {
@@ -478,6 +507,7 @@ var pointApi = {
                     .then(function () {
                         var idx = app.items.indexOf(self);
                         $.observable(app.items).remove(idx);
+                        app.currentOptions.markerLayer.removeLayer(self.getMarker());
                         sendMessage("delete", self);
                     }, translateServiceError);
         }
@@ -562,7 +592,7 @@ $.observable(app).observe("items", function () {
 
 });
 
-var mapIsDragging = false;
+var mapIsDragging = 0;
 
 
 
@@ -614,11 +644,19 @@ function startService() {
                 };
 
                 $.observable(app.items).insert(0, p);
+                var marker = pointApi.createMarkerFromPoint(p);
+                marker.bindPopup("Unnamed point");
+                app.currentOptions.markerLayer.addLayer(marker);
                 app.selectPoint(p);
+                app.closingOn = true;
+                app.currentOptions.markerLayer.zoomToShowLayer(marker, function () {
+                    app.closingOn = false;
+                    marker.openPopup();
+                    app.showEditor();
+                });
                 $.observable(app).setProperty("newAddress", null);
                 //hideRightPanel();
                 //$('#addNewPoint').foundation('reveal', 'open');
-                app.showEditor();
                 window.setTimeout(function () {
                     mydatabase.reverse(e.latlng).then(function (r) {
                         //console.dir(r.Results[0]);
@@ -638,14 +676,36 @@ function startService() {
                 //trace.logLine("!!");
                 window.clearTimeout(timer);
             });
+            lmap.on('tap', function (e) {
+                //alert("!");
+                console.log("tap");
+            });
+            lmap.on('mouseup', function (e) {
+                //mapIsDragging = true;
+                //mapIsDragging -= 1;
+                console.log("mu");
+            });
+            lmap.on('mousedown', function (e) {
+                //mapIsDragging += 1;
+                //alert("!");
+                console.log("md");
+            });
+            lmap.on('touchstart', function (e) {
+                trace.logLine("touch start");
+                //alert("!");
+                //mapIsDragging = true;
+                //console.log("ts");
+            });
             lmap.on('dragstart', function (e) {
+                trace.logLine("dragstart");
                 mapIsDragging = true;
                 cancellAll();
             });
             lmap.on('dragend', function (e) {
+                trace.logLine("dragend");
                 mapIsDragging = false;
                 if (lmap.getZoom() >= 15) {
-                    doSearch("reposition", 1000);
+                    doSearch("reposition", 500);
                 }
             });
             lmap.on('zoomend', function (e) {
@@ -672,6 +732,7 @@ $(function () {
         var marker = $.view(this).data.getMarker();
         $('#searchInput').blur();
         app.closingOn = true;
+        marker.openPopup();
         visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
             app.closingOn = false;
             marker.openPopup();
@@ -718,6 +779,7 @@ $(function () {
          $('#addNewPoint').foundation('reveal', 'close');
          //console.log(
          $.observable(app.items).remove(app.items.indexOf(app.selectedPoint));
+         app.currentOptions.markerLayer.removeLayer(app.selectedPoint.getMarker());
          hideRightPanel();
          app.selectPoint(null);
      })
@@ -775,12 +837,50 @@ $(function () {
     });
 
     bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
+
+    //L.Map.mergeOptions({
+    //    touchExtend: true
+    //});
+
+
+    //L.Map.TouchExtend = L.Handler.extend({
+    //    initialize: function (map) {
+    //        this._map = map;
+    //        this._container = map._container;
+    //        this._pane = map._panes.overlayPane;
+    //    },
+
+    //    addHooks: function () {
+    //        L.DomEvent.on(this._container, 'touchstart', this._onTouchStart, this);
+    //    },
+
+    //    removeHooks: function () {
+    //        L.DomEvent.off(this._container, 'touchstart', this._onTouchStart);
+    //    },
+
+    //    _onTouchStart: function (e) {
+    //        if (!this._map._loaded) { return; }
+
+    //        var type = 'touchstart';
+    //        trace.logLine("Touchstart");
+    //        var containerPoint = this._map.mouseEventToContainerPoint(e),
+    //            layerPoint = this._map.containerPointToLayerPoint(containerPoint),
+    //            latlng = this._map.layerPointToLatLng(layerPoint);
+
+    //        this._map.fire(type, { latlng: latlng, layerPoint: layerPoint, containerPoint: containerPoint, originalEvent: e });
+
+    //    }
+    //});
+
+    //L.Map.addInitHook('addHandler', 'touchExtend', L.Map.TouchExtend);
+
     lmap = new L.Map('map', {
         center: new L.LatLng(40.72121341440144, -74.00126159191132),
         maxZoom: 19,
         zoomControl: !(L.Browser.mobile),
         zoom: 15
     });
+
     lmap.attributionControl.addAttribution("JayStack.com ©");
     var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
 
@@ -868,17 +968,21 @@ $(function () {
 initUI();
 
 
+var searchCounter = 0;
+
 function defaultSearch(type) {
+    searchCounter += 1;
     return {
         bounds: lmap.getBounds(),
-        limit: 20,
+        limit: 50,
         type: type || 'new',
         offset: 0,
         fuzzy: 0,
         q: $('#searchInput').val(),
         app: app,
         map: lmap,
-        maxItems: 120
+        maxItems: 120,
+        version: searchCounter
     };
 }
 
@@ -895,14 +999,16 @@ function cancellAll() {
 function doSearch(type, wait) {
     console.log("calling do search", wait);
     cancellAll();
+    var options = defaultSearch(type);
+    app.lastSearch = options;
     if (wait) {
         var t = window.setTimeout(function () {
             delete pendingOperations[t];
-            search(defaultSearch(type));
+            search(options);
         }, wait);
         pendingOperations[t] = true;
     } else {
-        search(defaultSearch(type));
+        search(options);
     }
 }
 
