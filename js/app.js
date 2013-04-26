@@ -60,7 +60,7 @@ function search(options) {
     }
 
     function wireUpOptions(options) {
-        options.markerLayer = new L.MarkerClusterGroup();
+        options.markerLayer = new L.MarkerClusterGroup({ showCoverageOnHover: false });
         options.points = []
         options.pointIndex = {};
         $.observable(app).setProperty("items", options.points);
