@@ -1,0 +1,28 @@
+<html>
+    <head>
+        
+        <script>
+            i = 0;
+            function createScript() {
+                for (var i = 0; i < 1000; i++) {
+                    var scr = document.createElement("script");
+                    scr.src = "jsonp.js";
+                    //h = document.getElementById('scripts');
+                    h = document.head;
+                    h.appendChild(scr);
+                    (function (scr) {
+                        window.setTimeout(function () {
+                            h.removeChild(scr);
+                        }, 0);
+                    })(scr);
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div id="scripts">
+
+        </div>
+
+    </body>
+</html>

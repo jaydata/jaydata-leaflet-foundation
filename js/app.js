@@ -15,6 +15,10 @@ function getAsQueryString(o) {
     qryStr += "&callback=?"
     return qryStr;
 };
+var worker = new Worker("worker.js");
+worker.onmessage = function (msg) {
+    
+}
 
 function search(options) {
     var query;
@@ -43,7 +47,7 @@ function search(options) {
 
     $.extend(query, {
         q: options.q || 'hyp',
-        limit: options.limit || 100,
+        limit: options.limit || 50,
         fuzzy: options.fuzzy || 0,
         start: options.start || 0
     });
@@ -51,26 +55,14 @@ function search(options) {
 
     url = "http://hyperlocal.redth.info/search?" + getAsQueryString(query);
 
-    //var addingPoints = 0;
-
-    ////var visibleLayers = [];
-    //var activeSearches = [];
-    function wireDownOptions(options) {
-        lmap.removeLayer(options.markerLayer);
+    if (options.type === 'new') {
+        app.resetAll();
     }
-
-    function wireUpOptions(options) {
-        options.markerLayer = new L.MarkerClusterGroup({ showCoverageOnHover: false });
-        options.points = []
-        options.pointIndex = {};
-        $.observable(app).setProperty("items", options.points);
-        return options;
-    }
-
-
+    
     if (options.app) {
         var app = options.app;
         var indi = indicator.beginProcess();
+
         $.getJSON(url, function (x) {
             indi.complete();
             trace.logLine("onresult: v" + options.version + " dragging:" + mapIsDragging);
@@ -83,41 +75,40 @@ function search(options) {
                 console.log("@@@@", "query outdated");
                 return;
             }
-            if (options.type !== "followup") {
-                if (app.currentOptions) {
-                    wireDownOptions(app.currentOptions);
-                }
-                app.currentOptions = wireUpOptions(options);
-            } else {
-                //app.removeAllPoints();
-                //app.removeInvisiblePoints();
-            }
+            app.addPoints(x.results)
 
-            var markers = [];
-            x.results.forEach(function (p) {
-                markers.push(pointApi.createMarkerFromPoint(p));
-            });
-            
-            $.observable(options.points).insert(options.points.length, x.results);
+            //$.observable(options.points).insert(options.points.length, x.results);
 
-            if (L.Browser.mobile) {
-                function addByChunk() {
-                    options.markerLayer.addLayers(markers);
-                    //var subset = markers.splice(0, 50);
-                    //if (!mapIsDragging) {
-                    //    options.markerLayer.addLayers(subset);
-                    //}
-                    //if (markers.length > 0) {
-                    //    window.webkitRequestAnimationFrame(addByChunk);
-                    //}
-                    trace.logLine("markers there  v" + options.version);
-                    options.markerLayer.addTo(lmap);
-                }
-                window.webkitRequestAnimationFrame(addByChunk);
-            } else {
-                options.markerLayer.addLayers(markers);
-                options.markerLayer.addTo(lmap);
-            }
+            //if (L.Browser.mobile) {
+            //    function addByChunk() {
+            //        if (options.markerLayer.addLayers) {
+            //            options.markerLayer.addLayers(markers);
+            //        } else {
+            //            markers.forEach(function (marker) {
+            //                marker.addTo(options.markerLayer);
+            //            });
+            //        }
+            //        //var subset = markers.splice(0, 50);
+            //        //if (!mapIsDragging) {
+            //        //    options.markerLayer.addLayers(subset);
+            //        //}
+            //        //if (markers.length > 0) {
+            //        //    window.webkitRequestAnimationFrame(addByChunk);
+            //        //}
+            //        trace.logLine("markers there  v" + options.version);
+            //        options.markerLayer.addTo(lmap);
+            //    }
+            //    window.webkitRequestAnimationFrame(addByChunk);
+            //} else {
+            //    if (options.markerLayer.addLayers) {
+            //        options.markerLayer.addLayers(markers);
+            //    } else {
+            //        markers.forEach(function (marker) {
+            //            marker.addTo(options.markerLayer);
+            //        });
+            //    }
+            //    options.markerLayer.addTo(lmap);
+            //}
 
             //if (L.Browser.mobile) {
             //    function pushTen() {
@@ -140,7 +131,8 @@ function search(options) {
             //console.log(x.limit, x.results_found);
             if (!L.Browser.mobile && options.type !== "followup" && (options.app.items.length < x.results_found)) {
                 var newOpts = $.extend({}, options);
-                newOpts.limit = (L.Browser.mobile ? 50 : 100);
+                ///zpa
+                newOpts.limit = (L.Browser.mobile ? 10 : 10);
                 newOpts.type = "followup";
                 newOpts.start = options.app.items.length;
                 newOpts.keepItems = true;
@@ -251,11 +243,76 @@ function sendMessage(msgType, msg) {
         msgType: msgType,
         msg: msg
     };
-    socket.emit("newPoint", { sender: me, p: JSON.stringify(data) });
+    //socket.emit("newPoint", { sender: me, p: JSON.stringify(data) });
 }
 
 
 var app = {
+    map: null,
+    trace: null,
+    locator: null,
+    networkIndicator: null, 
+    pointIndex: {},
+    resetAll: function() {
+        app.markerLayer.clearLayers();
+    },
+
+    addPoints: function (points) {
+        var _markers = [];
+        var _points = [];
+        points.forEach(function (point) {
+            if (!app.pointIndex[point.record_id]) {
+                console.dir(point);
+                app.pointIndex[point.record_id] = point;
+                var marker = pointApi.createMarkerFromPoint(point);
+                _markers.push(marker);
+                _points.push(point);
+            }
+        });
+        app.markerLayer.addLayers(_markers);
+    },
+
+    removePoints: function(points) {
+    },
+    markerLayer: null,
+
+    createMarkerLayer: function() {
+        return app.markerLayer = new L.MarkerClusterGroup();
+    },
+    createMap: function () {
+        //alert(document.getElementById('map'));
+        app.map = lmap = new L.Map('map', {
+            center: new L.LatLng(40.72121341440144, -74.00126159191132),
+            maxZoom: 19,
+            zoomControl: !(L.Browser.mobile),
+            zoom: 15
+        });
+        app.map.attributionControl.addAttribution("JayStack.com ©");
+        var bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
+        var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
+
+        app.trace = trace = new $data.LeafletTrace();
+        app.trace.addTo(app.map);
+
+        app.locator = L.control.locate();
+        app.locator.addTo(app.map);
+
+        app.networkIndicator = indicator = new $data.NetworkIndicator();
+        app.networkIndicator.addTo(app.map);
+
+
+        app.editModeSwitch  = editModeSwitch = new $data.EditMode({ app: app });
+        app.editModeSwitch.addTo(app.map);
+
+        app.createMarkerLayer().addTo(app.map);
+
+        //app.pins = visiblePins;
+        window.setTimeout(function () {
+            app.map.addLayer(bing);
+        }, 1000);
+        //visiblePins.addTo(lmap);
+        lmap.invalidateSize();
+    },
     pins: null,
     editMode: false,
     toggleEditMode: function() {
@@ -278,11 +335,10 @@ var app = {
     removeAllPoints: function () {
         $.observable(app).setProperty("pointIndex", {});
         $.observable(app).setProperty("items", []);
-        visiblePins.clearLayers();
+        //visiblePins.clearLayers();
         //$.observable(app.items).remove(0, app.items.length);
     },
 
-    pointIndex: {},
     query: "Rest",
     selectedItem: null,
     selectedPoint: null,
@@ -290,6 +346,13 @@ var app = {
     selectPoint: function (selectedPoint) {
         if (selectedPoint !== app.selectedPoint) {
             $.observable(app).setProperty("selectedPoint", selectedPoint);
+            app.closingOn = true;
+            var marker = selectedPoint.getMarker();
+            //todo
+            //.zoomToShowLayer(marker, function () {
+                app.closingOn = false;
+                marker.openPopup();
+            //});
         } else if (selectedPoint) {
             app.showEditor();
         }
@@ -546,7 +609,6 @@ var pointApi = {
         }
         return marker;
     }
-
 }
 
 $.observable(app).observe("items", function () {
@@ -603,7 +665,7 @@ $.views.helpers({
     app: app
 })
 
-var visiblePins = new L.MarkerClusterGroup();
+//var visiblePins = new L.MarkerClusterGroup();
 //var visiblePins = new L.LayerGroup();
 var previousValue = '';
 
@@ -696,26 +758,31 @@ function startService() {
                 //mapIsDragging = true;
                 //console.log("ts");
             });
+            lmap.on('drag', function (e) {
+                //trace.logLine("dragstart");
+                //cancellAll();
+                //doSearch("reposition", 200);
+            });
             lmap.on('dragstart', function (e) {
-                trace.logLine("dragstart");
-                mapIsDragging = true;
-                cancellAll();
+                //trace.logLine("dragstart");
+                ////mapIsDragging = true;
+                //cancellAll();
             });
             lmap.on('dragend', function (e) {
-                trace.logLine("dragend");
-                mapIsDragging = false;
-                if (lmap.getZoom() >= 15) {
-                    doSearch("reposition", 500);
-                }
+                //trace.logLine("dragend");
+                //mapIsDragging = false;
+                //if (lmap.getZoom() >= 15) {
+                //    doSearch("reposition", 100);
+                //}
             });
             lmap.on('zoomend', function (e) {
                 if (app.closingOn) {
                     return;
                 }
                 indicator.setVisible(lmap.getZoom() >= 15);
-                if (lmap.getZoom() >= 15) {
+                //if (lmap.getZoom() >= 15) {
                     doSearch("reposition", 1000);
-                }
+                //}
             });
 
         });
@@ -724,25 +791,16 @@ function startService() {
 $(function () {
 
 
-
     $.link.mainTemplate('#row-full', app)
-    .on("click", ".main-list > li", function () {
-        var selectedItem = $.view(this);
-        app.selectItem(selectedItem);
-        var marker = $.view(this).data.getMarker();
-        $('#searchInput').blur();
-        app.closingOn = true;
-        marker.openPopup();
-        visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
-            app.closingOn = false;
-            marker.openPopup();
-        });
-        //lmap.panTo(marker.getLatLng());
+        .on("click", ".main-list > li", function () {
+            $('#searchInput').blur();
+            var selectedItem = $.view(this);
+            app.selectItem(selectedItem);
     })
      .on("click", ".edit-command", function () {
          app.showEditor();
          var marker = $.view(this).data.getMarker();
-         visiblePins.zoomToShowLayer($.view(this).data.getMarker(), function () {
+         options.markerLayer.zoomToShowLayer($.view(this).data.getMarker(), function () {
              marker.openPopup();
              app.showEditor();
          });
@@ -798,10 +856,28 @@ $(function () {
                  });
          }, 300);
      });
+
     $(document).on("click", ".popup-container", function () {
         alert("!");
         app.showEditor();
     });
+
+    app.createMap();
+
+    app.map.nodeName = 'map';
+    function dragOne() {
+        doSearch("reposition", 0);
+    }
+    
+
+    q = Rx.Observable
+          .fromEvent(app.map, "drag")
+          .take(1)
+          .merge(Rx.Observable.empty().delay(400))
+          .repeat()
+          .subscribe(dragOne);
+              //
+          //.repeat();
 
 
     $('#editModeSwitch').click(function (evt) {
@@ -836,7 +912,6 @@ $(function () {
         return false;
     });
 
-    bingKey = 'AmpN66zZQqp8WpszBYibPXrGky0EiHLPT75WtuA2Tmj7bS4jgba1Wu23LJH1ymqy';
 
     //L.Map.mergeOptions({
     //    touchExtend: true
@@ -874,35 +949,6 @@ $(function () {
 
     //L.Map.addInitHook('addHandler', 'touchExtend', L.Map.TouchExtend);
 
-    lmap = new L.Map('map', {
-        center: new L.LatLng(40.72121341440144, -74.00126159191132),
-        maxZoom: 19,
-        zoomControl: !(L.Browser.mobile),
-        zoom: 15
-    });
-
-    lmap.attributionControl.addAttribution("JayStack.com ©");
-    var bing = new L.BingLayer(bingKey, { maxZoom: 19 });
-
-    trace = new $data.LeafletTrace();
-    trace.addTo(lmap);
-
-    locator = L.control.locate();
-    locator.addTo(lmap);
-
-    indicator = new $data.NetworkIndicator();
-    indicator.addTo(lmap);
-
-
-    editModeSwitch = new $data.EditMode({ app: app });
-    editModeSwitch.addTo(lmap);
-
-    app.pins = visiblePins;
-    window.setTimeout(function () {
-        lmap.addLayer(bing);
-    }, 1000);
-    visiblePins.addTo(lmap);
-    lmap.invalidateSize();
 
 
     $('#menu').circleMenu({
@@ -938,7 +984,7 @@ $(function () {
     }
 
 
-    doSearch();
+    doSearch({ app: app });
 
     //navigator.geolocation.getCurrentPosition(function (o) {
     //    window.setTimeout(function () {
@@ -974,7 +1020,7 @@ function defaultSearch(type) {
     searchCounter += 1;
     return {
         bounds: lmap.getBounds(),
-        limit: 50,
+        limit: 10,
         type: type || 'new',
         offset: 0,
         fuzzy: 0,

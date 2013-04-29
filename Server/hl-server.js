@@ -2,13 +2,30 @@
 require('odata-server');
 var app = connect();
 
+var Point = $data.Entity.extend("Point", {
+    record_id: { type: 'string' },
+    name: { type: String },
+    lat: { type: Number },
+    lon: { type: Number },
+    data: { type: Object },
+    geoHash: { type: String }
+});
+
 var mySvc = $data.EntityContext.extend("NyNs.MySvc", {
+
     Editors: { type: $data.EntitySet, elementType: $data.define("NyNs.Editor", {
         permitted: Boolean,
         uname: String,
         uid: String,
         id: {type: 'id', key: true, computed: true }
-    }) },
+    })
+    },
+    Points: {
+        type: $data.EntitySet, elementType: Point
+    },
+    PointsLarge: {
+        type: $data.EntitySet, elementType: Point
+    },
     _ensureAthorized: function(user,permission, onPermitted) {
         var self = this;
         var Editors = self.Editors;

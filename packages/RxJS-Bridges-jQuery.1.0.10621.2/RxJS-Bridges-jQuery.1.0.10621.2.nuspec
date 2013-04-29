@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>RxJS-Bridges-jQuery</id>
+    <version>1.0.10621.2</version>
+    <title>Reactive Extensions for JavaScript - Bridges to jQuery</title>
+    <authors>mattpodwysocki</authors>
+    <owners>mattpodwysocki</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>https://github.com/Reactive-Extensions/rxjs-jquery</projectUrl>
+    <iconUrl>http://go.microsoft.com/fwlink/?LinkId=215482</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>This project provides Reactive Extensions for JavaScript (RxJS) bindings for jQuery to abstract over the event binding, Ajax and Deferreds.</description>
+    <copyright>Microsoft Corporation</copyright>
+    <tags>RxJS, jQuery</tags>
+    <dependencies>
+      <dependency id="RxJS-Main" version="1.0.10621.0" />
+      <dependency id="jQuery" version="1.5.1" />
+    </dependencies>
+    <references />
+  </metadata>
+</package>
