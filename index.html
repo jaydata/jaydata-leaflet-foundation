@@ -13,9 +13,9 @@
 
     <title>HyperLocal</title>
     <script src="js/vendor/custom.modernizr.js"></script>
-<!--    <link rel="stylesheet" href="css.css" />-->
-    <link href="css/circle-menu.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css.css" />
 <!--    <link href="css/accessibility_foundicons.css" rel="stylesheet" />-->
+<!--    <link href="css/circle-menu.css" rel="stylesheet" />
     <link rel="stylesheet" href="css/normalize.css" />
     <link rel="stylesheet" href="css/foundation.css" />
     <link rel="stylesheet" href="css/general_foundicons.css" />
@@ -25,12 +25,12 @@
 
     <link href="awesomefont/css/font-awesome.css" rel="stylesheet" />
 
-    <link href="leafletjs/leaflet.css" rel="stylesheet" />
+    <link href="leafletjs/master/leaflet.css" rel="stylesheet" />
     <link href="leafletjs/leaflet.awesome-markers.css" rel="stylesheet" />
     <link href="leafletjs/cluster.css" rel="stylesheet" />
     <link href="leafletjs/L.Control.Locate.css" rel="stylesheet" />
     <link href="js/toastr.css" rel="stylesheet" />
-    <link href="js/toastr-responsive.css" rel="stylesheet" />
+    <link href="js/toastr-responsive.css" rel="stylesheet" />-->
     <style>
         .leaflet-control-network {
             width:22px;
@@ -129,15 +129,11 @@
          .leaflet-touch .leaflet-control-edit-switch {
              display:none
          }
+         .leaflet-control-search > span {
+             padding: 3px 3px 3px 3px;
+             background-color: whitesmoke
+         }
     </style>
-    <script>
-        function mnuClick() {
-            alert("?");
-            window.event.cancelBubble = true;
-            window.event.returnValue = false;
-            return false;
-        }
-    </script>
 </head>
 <body>
 
@@ -181,9 +177,9 @@
                     <li id="zoomIn" class="menu-zoom-in"><a class="menu-link foundicon-plus" id="zoomInHref" href="#"></a></li>
                     <li id="zoomOut" class="menu-zoom-out"><a class="menu-link foundicon-minus" href="#" id="zoomOutHref"></a></li>
                     <li id="editModeSwitch" data-link="class{: ~app.editMode ? 'active-menu menu-edit' : 'menu-edit' }">
-                        <a class="foundicon-edit"></a>
+                        <a class="foundicon-location"></a>
                     </li>
-                    <li onclick="toggleMap()" class="menu-search"><a class="foundicon-search" href="#"></a></li>
+                    <li id="menu-search" class="menu-search"><a class="foundicon-search" href="#"></a></li>
                     <li id="locateMe" class="menu-map"><a class="menu-link icon-screenshot" href="#"></a></li>
                 </ul>
 		    </div>
@@ -284,9 +280,9 @@
             <input type="text" readonly placeholder="Name of place"  value="resolving address from coordinates"/>
         {{/if}}
     </script>
-
+    <!---link="xcss-background-color{:~bgColor(~app.selectedPoint)}-->
     <script type="text/x-jsrender" id="poiTemplate">
-        <li data-link="css-background-color{:~bgColor(~app.selectedPoint)}" >
+        <li>
             {^{> record.name}} 
             {^{if ~app.selectedPoint === #data}}
                 {^{if ~app.editorVisible}}
@@ -310,8 +306,22 @@
         </div>
     </script>
 
+<!--    <div class="section-container accordion" data-section="accordion">
+  <section>
+    <p class="title" data-section-title><a href="#">Section 1</a></p>
+    <div class="content" data-section-content>
+      <p>Content of section 1.</p>
+    </div>
+  </section>
+  <section>
+    <p class="title" data-section-title><a href="#">Section 2</a></p>
+    <div class="content" data-section-content>
+      <p>Content of section 2.</p>
+    </div>
+  </section>
+</div>-->
+
     <script type="text/x-jsrender" id="poiEditorTemplate">
-        {^{if selectedPoint}}
         {^{for selectedPoint}}
         <form>
             <fieldset>
@@ -341,7 +351,6 @@
                   </div>
                 </div>
             </fieldset>
-
             <fieldset>
                 <legend>Address</legend>
                 <div class="row">
@@ -383,36 +392,29 @@
                   </div>
             </div>
             </fieldset>
+  
             <div class="row">
                 {^{if save}}
-                <div class="large-6 columns">
+                <div class="small-6  large-6 columns">
                     <a href="#" class="button prefix save-command">Save</a>
                 </div>
                 {{/if}}
                 {^{if isNew}}
-                <div class="large-6 columns">
+                <div class="small-6  large-6 columns">
                   <a href="#" class="button prefix alert cancel-command">Cancel</a>
                 </div>
                 {{else}}
-                <div class="large-6 columns">
+                <div class="small-6 large-6 columns">
                   <a href="#" class="button prefix alert remove-command">Remove</a>
                 </div>
                 {{/if}}
             </div>
         </form>
         {{/for}}
-        {{/if}}
     </script>
-    <script src="Scripts/rx.js"></script>
-    <script src="Scripts/rx.aggregates.js"></script>
-    <script src="Scripts/rx.binding.js"></script>
-    <script src="Scripts/rx.coincidence.js"></script>
-    <script src="Scripts/rx.joinpatterns.js"></script>
-    <script src="Scripts/rx.time.js"></script>
-    <script src="Scripts/rx.html.js"></script>
 
-    <script src="js/socket.io.js"></script>
-    <script src="js/vendor/jquery2b3.js"></script>
+    <script src="https://dev-open.jaystack.net/a11d6738-0e23-4e04-957b-f14e149a9de8/1162e5ee-49ca-4afd-87be-4e17c491140b/socket.io/socket.io.js"></script>
+<!--    <script src="js/vendor/jquery2b3.js"></script>
     <script src="js/toastr.js"></script>
     <script src="js/vendor/jsrender.js"></script>
     <script src="js/vendor/jquery.observable.js"></script>
@@ -422,7 +424,7 @@
     <script src="js/foundation.min.js"></script>
     <script src="js/vendor/iscroll.js"></script>
 
-    <script src="leafletjs/latest/leaflet.js"></script>
+    <script src="leafletjs/master/leaflet.js"></script>
     <script src="leafletjs/leaflet.awesome-markers.js"></script>
     <script src="leafletjs/BingLayer.js"></script>
     <script src="leafletjs/latest/cluster.js"></script>
@@ -433,11 +435,11 @@
     <script src="js/hello.min.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/app.js"></script>
-    <!--<script src="js.js"></script>-->
+    <script src="js/app.js"></script>-->
+    <script src="js.js"></script>
 
     <script>
-        $(document).foundation().foundation('reveal', {
+        $(document).foundation('reveal', {
             closeOnBackgroundClick: false,
             animation: 'fadeAndPop',
             animationSpeed: 0,
